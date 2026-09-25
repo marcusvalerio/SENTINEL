@@ -11,7 +11,7 @@ export default async function ToolsPage({ params }: { params: Promise<{ id: stri
   return (
     <div className="flex flex-col gap-8">
       <SectionHeader title="Ferramentas" description="O que foi usado para construir este projeto e com qual finalidade." />
-      <ToolsManager projectId={project.id} tools={tools.map((t) => ({ id: t.id, name: t.name, purpose: t.purpose, plan: t.plan }))} />
+      <ToolsManager projectId={project.id} tools={tools.map((t) => ({ id: t.id, name: t.name, category: t.category, purpose: t.purpose, plan: t.plan, costCents: t.costCents, frequency: t.frequency, startedOn: t.startedOn, endedOn: t.endedOn, notes: t.notes }))} />
     </div>
   );
 }
