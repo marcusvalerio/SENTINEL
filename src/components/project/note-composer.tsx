@@ -7,7 +7,9 @@ import { Button } from "@/components/ui/button";
 import { FormField } from "@/components/ui/form-field";
 import { Input, Textarea } from "@/components/ui/input";
 import { useToast } from "@/components/ui/toast";
+import { TagInput } from "@/components/ui/tag-input";
 import { NOTE_TYPES, NOTE_TYPE_LABELS, type NoteType } from "@/domain/notes";
+import { SUGGESTED_TAGS } from "@/domain/tags";
 import { cn } from "@/lib/cn";
 import { useIsMac } from "@/lib/use-platform";
 import { createNote, updateNote, type NoteInput } from "@/server/notes/actions";
@@ -15,15 +17,16 @@ import { NOTE_ICONS } from "./note-meta";
 
 type ComposerProps = {
   projectId: string;
-  initial?: { id: string; title: string; content: string; type: NoteType };
+  initial?: { id: string; title: string; content: string; type: NoteType; tags: string[] };
+  knownTags?: string[];
   defaultType?: NoteType;
   autoFocus?: boolean;
   onDone?: () => void;
   onCancel?: () => void;
 };
 
-export function NoteForm({ projectId, initial, defaultType = "note", autoFocus, onDone, onCancel }: ComposerProps) {
-  const [values, setValues] = useState<NoteInput>({ title: initial?.title ?? "", content: initial?.content ?? "", type: initial?.type ?? defaultType });
+export function NoteForm({ projectId, initial, defaultType = "note", autoFocus, onDone, onCancel, knownTags = [] }: ComposerProps) {
+  const [values, setValues] = useState<NoteInput & { tags: string[] }>({ title: initial?.title ?? "", content: initial?.content ?? "", type: initial?.type ?? defaultType, tags: initial?.tags ?? [] });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [pending, startTransition] = useTransition();
   const toast = useToast();
@@ -41,7 +44,7 @@ export function NoteForm({ projectId, initial, defaultType = "note", autoFocus, 
         title: initial ? "Registro atualizado" : "Registro adicionado à Rubrica",
         description: !initial && values.type === "decision" ? "A decisão também entrou na timeline." : undefined,
       });
-      setValues({ title: "", content: "", type: values.type });
+      setValues({ title: "", content: "", type: values.type, tags: [] });
       setErrors({});
       onDone?.();
     });
@@ -90,10 +93,13 @@ export function NoteForm({ projectId, initial, defaultType = "note", autoFocus, 
         />
       </FormField>
       <FormField label={<span className="sr-only">Conteúdo</span>} error={errors.content} className="gap-0">
-        <Textarea value={values.content} onChange={(e) => setValues((v) => ({ ...v, content: e.target.value }))} placeholder="O que aconteceu, o que foi pensado, o que foi decidido…" minRows={4} />
+        <Textarea value={values.content} onChange={(e) => setValues((v) => ({ ...v, content: e.target.value }))} placeholder="O que aconteceu, o que foi pensado, o que foi decidido… Markdown e #tags funcionam aqui." minRows={4} />
       </FormField>
+      <TagInput value={values.tags} onChange={(tags) => setValues((v) => ({ ...v, tags }))} suggestions={[...new Set([...knownTags, ...SUGGESTED_TAGS])]} />
       <div className="flex items-center justify-between gap-3">
-        <span className="hidden text-caption tracking-normal text-fg-subtle sm:inline">{isMac ? "⌘" : "Ctrl"} + Enter para salvar</span>
+        <span className="hidden text-caption tracking-normal text-fg-subtle sm:inline">
+          {isMac ? "⌘" : "Ctrl"} + Enter para salvar · **negrito**, *itálico*, - listas, [links](url)
+        </span>
         <div className="ml-auto flex gap-2">
           {onCancel && (
             <Button variant="ghost" size="sm" onClick={onCancel}>
@@ -110,7 +116,7 @@ export function NoteForm({ projectId, initial, defaultType = "note", autoFocus, 
 }
 
 /** Collapsed prompt that opens into the full composer. */
-export function NoteComposer({ projectId, startOpen = false, defaultType }: { projectId: string; startOpen?: boolean; defaultType?: NoteType }) {
+export function NoteComposer({ projectId, startOpen = false, defaultType, knownTags }: { projectId: string; startOpen?: boolean; defaultType?: NoteType; knownTags?: string[] }) {
   const [open, setOpen] = useState(startOpen);
   const triggerRef = useRef<HTMLButtonElement>(null);
 
@@ -132,6 +138,7 @@ export function NoteComposer({ projectId, startOpen = false, defaultType }: { pr
               <NoteForm
                 projectId={projectId}
                 defaultType={defaultType}
+                knownTags={knownTags}
                 autoFocus
                 onDone={() => setOpen(false)}
                 onCancel={() => {
