@@ -9,7 +9,10 @@ import { Code } from "@/components/ui/badge";
 import { PROJECT_TYPE_LABELS } from "@/domain/project";
 import { formatDate, formatRelative } from "@/lib/format";
 import { loadProject } from "@/server/projects/context";
-import { getProjectCounts } from "@/server/projects/queries";
+import { MilestonePanel } from "@/components/project/milestone-panel";
+import { milestoneProgress } from "@/domain/progress";
+import { getActivityStats, getCommitCadence, getMilestones } from "@/server/projects/intelligence";
+import { getFeatures, getProjectCounts } from "@/server/projects/queries";
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { project } = await loadProject(params);
@@ -18,7 +21,14 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 
 export default async function ProjectLayout({ children, params }: { children: React.ReactNode; params: Promise<{ id: string }> }) {
   const { project } = await loadProject(params);
-  const counts = await getProjectCounts(project.id);
+  const [counts, milestones, features, stats, cadence] = await Promise.all([
+    getProjectCounts(project.id),
+    getMilestones(project.id),
+    getFeatures(project.id),
+    getActivityStats(project.id),
+    project.github ? getCommitCadence(project.id) : Promise.resolve([]),
+  ]);
+  const countedMilestones = milestones.filter((m) => m.status !== "cancelled");
 
   const meta = [
     PROJECT_TYPE_LABELS[project.type],
@@ -61,7 +71,7 @@ export default async function ProjectLayout({ children, params }: { children: Re
                   ))}
                   <span className="flex items-center gap-2">
                     <span className="size-0.5 rounded-full bg-fg-subtle" aria-hidden />
-                    <span suppressHydrationWarning>Atividade {formatRelative(project.lastActivityAt)}</span>
+                    <span suppressHydrationWarning>Atualizado {formatRelative(project.lastActivityAt)}</span>
                   </span>
                 </p>
               </div>
@@ -69,12 +79,24 @@ export default async function ProjectLayout({ children, params }: { children: Re
             </div>
           </div>
 
-          <div className="grid overflow-hidden rounded-lg bg-surface/70 shadow-[inset_0_0_0_1px_var(--color-line)] backdrop-blur-sm md:grid-cols-2 md:divide-x md:divide-line max-md:divide-y max-md:divide-line">
-            <ProgressPanel projectId={project.id} progress={project.progress} source={project.progressSource} features={counts.features} featuresDone={counts.featuresDone} />
-            <ActivityPanel projectId={project.id} github={project.github} />
-          </div>
+          <section aria-label="Estado do projeto" className="grid overflow-hidden rounded-lg bg-surface/70 shadow-[inset_0_0_0_1px_var(--color-line)] backdrop-blur-sm md:grid-cols-3 md:divide-x md:divide-line max-md:divide-y max-md:divide-line">
+            <ProgressPanel
+              projectId={project.id}
+              progress={project.progress}
+              source={project.progressSource}
+              features={counts.features}
+              featuresDone={counts.featuresDone}
+              milestones={countedMilestones.length}
+              milestonesDone={countedMilestones.filter((m) => m.status === "completed").length}
+            />
+            <ActivityPanel projectId={project.id} github={project.github} stats={stats} cadence={cadence} />
+            <MilestonePanel
+              projectId={project.id}
+              milestones={milestones.map((m) => ({ id: m.id, name: m.name, status: m.status, dueOn: m.dueOn, progress: milestoneProgress(m, features) }))}
+            />
+          </section>
 
-          <ProjectSectionNav projectId={project.id} counts={{ rubrica: counts.notes, escopo: counts.features, timeline: counts.events, ferramentas: counts.tools }} />
+          <ProjectSectionNav projectId={project.id} counts={{ rubrica: counts.notes, escopo: counts.features, roadmap: countedMilestones.length, ferramentas: counts.tools }} />
         </div>
       </div>
 
