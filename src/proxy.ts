@@ -11,6 +11,11 @@ export function proxy(request: NextRequest) {
   const token = request.cookies.get(SESSION_COOKIE)?.value;
   const isPublic = pathname === "/login";
 
+  // APIs answer with a status code, never with a redirect to an HTML page.
+  if (!token && pathname.startsWith("/api/")) {
+    return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+  }
+
   if (!token && !isPublic) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";

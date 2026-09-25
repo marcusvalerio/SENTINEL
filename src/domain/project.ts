@@ -128,10 +128,11 @@ export const ENGAGEMENT_LABELS: Record<Engagement, string> = {
  * Where the project progress number comes from. GitHub activity is
  * intentionally NOT a progress source: activity is not completion.
  */
-export const PROGRESS_SOURCES = ["manual", "features"] as const;
+export const PROGRESS_SOURCES = ["manual", "features", "milestones"] as const;
 export type ProgressSource = (typeof PROGRESS_SOURCES)[number];
 
 export const PROGRESS_SOURCE_LABELS: Record<ProgressSource, string> = {
   manual: "Definido manualmente",
   features: "Baseado nas funcionalidades",
+  milestones: "Baseado nos milestones",
 };

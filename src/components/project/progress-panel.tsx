@@ -13,9 +13,9 @@ import { useToast } from "@/components/ui/toast";
 import { PROGRESS_SOURCE_LABELS, type ProgressSource } from "@/domain/project";
 import { setProjectProgress } from "@/server/projects/actions";
 
-type Props = { projectId: string; progress: number; source: ProgressSource; features: number; featuresDone: number };
+type Props = { projectId: string; progress: number; source: ProgressSource; features: number; featuresDone: number; milestones: number; milestonesDone: number };
 
-export function ProgressPanel({ projectId, progress, source, features, featuresDone }: Props) {
+export function ProgressPanel({ projectId, progress, source, features, featuresDone, milestones, milestonesDone }: Props) {
   const [open, setOpen] = useState(false);
   const [draftSource, setDraftSource] = useState<ProgressSource>(source);
   const [value, setValue] = useState(progress);
@@ -27,7 +27,11 @@ export function ProgressPanel({ projectId, progress, source, features, featuresD
       ? features === 0
         ? "Nenhuma funcionalidade registrada ainda"
         : `${featuresDone} de ${features} funcionalidades concluídas`
-      : "Definido manualmente";
+      : source === "milestones"
+        ? milestones === 0
+          ? "Nenhum milestone definido ainda"
+          : `${milestonesDone} de ${milestones} milestones concluídos`
+        : "Definido manualmente";
 
   const save = () =>
     startTransition(async () => {
@@ -39,7 +43,7 @@ export function ProgressPanel({ projectId, progress, source, features, featuresD
     });
 
   return (
-    <div className="flex flex-col gap-4 p-5">
+    <div className="flex h-full flex-col gap-4 p-5">
       <div className="flex items-start justify-between gap-3">
         <div className="flex flex-col gap-1">
           <span className="eyebrow">Progresso do projeto</span>
@@ -69,7 +73,7 @@ export function ProgressPanel({ projectId, progress, source, features, featuresD
         </motion.span>
       </div>
       <Progress value={progress} size="md" label="Progresso do projeto" />
-      <p className="text-body-sm text-fg-muted">{detail}</p>
+      <p className="mt-auto text-body-sm text-fg-muted">{detail}</p>
 
       <Modal
         open={open}
@@ -90,9 +94,10 @@ export function ProgressPanel({ projectId, progress, source, features, featuresD
         <div className="flex flex-col gap-6">
           <FormField label="Fonte do progresso">
             <ChoiceGroup
-              columns={2}
+              columns={3}
               options={[
-                { value: "features", label: "Funcionalidades", description: "Calculado pelo escopo, ponderado por prioridade" },
+                { value: "features", label: "Funcionalidades", description: "Escopo, ponderado por prioridade" },
+                { value: "milestones", label: "Milestones", description: "Etapas do roadmap" },
                 { value: "manual", label: "Manual", description: "Você define o percentual" },
               ]}
               value={draftSource}

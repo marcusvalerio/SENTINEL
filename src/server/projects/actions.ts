@@ -231,7 +231,7 @@ export async function updateProject(input: {
 
   try {
     await db.transaction(async (tx) => {
-      const [before] = await tx.select({ status: projects.status }).from(projects).where(eq(projects.id, projectId));
+      const [before] = await tx.select({ status: projects.status, primaryGoal: projects.primaryGoal }).from(projects).where(eq(projects.id, projectId));
       const existingFeatures = await tx.select({ id: projectFeatures.id }).from(projectFeatures).where(eq(projectFeatures.projectId, projectId));
       const existingIds = new Set(existingFeatures.map((f) => f.id));
 
@@ -274,6 +274,16 @@ export async function updateProject(input: {
       await upsertLead(tx, projectId, data.leadName);
 
       if (statusChanged) await logStatusChange(tx, projectId, before.status, data.status, user.id);
+      if (before && before.primaryGoal.trim() !== data.primaryGoal.trim()) {
+        await logEvent(tx, {
+          projectId,
+          type: "goal_change",
+          title: "Objetivo principal alterado",
+          description: data.primaryGoal,
+          metadata: { previous: before.primaryGoal },
+          createdById: user.id,
+        });
+      }
       if (added || removed) {
         const parts = [added && `${added} adicionada${added > 1 ? "s" : ""}`, removed && `${removed} removida${removed > 1 ? "s" : ""}`].filter(Boolean);
         await logEvent(tx, {

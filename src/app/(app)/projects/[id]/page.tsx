@@ -2,7 +2,7 @@ import Link from "next/link";
 import { ArrowRight, NotebookPen, Wrench } from "lucide-react";
 import { NoteTypeTag } from "@/components/project/note-meta";
 import { DetailList } from "@/components/project/doc";
-import { TimelineList } from "@/components/project/timeline-list";
+import { HistoryList } from "@/components/project/history-list";
 import { Badge } from "@/components/ui/badge";
 import { ButtonLink } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -16,7 +16,8 @@ import {
 } from "@/domain/project";
 import { formatDate, formatRelative } from "@/lib/format";
 import { loadProject } from "@/server/projects/context";
-import { getFeatures, getMembers, getNotes, getTimeline, getTools } from "@/server/projects/queries";
+import { getHistory } from "@/server/projects/intelligence";
+import { getFeatures, getMembers, getNotes, getTools } from "@/server/projects/queries";
 
 const FEATURE_BAR: Record<string, string> = { done: "bg-accent", in_progress: "bg-[#93a6d8]", planned: "bg-surface-3" };
 const FEATURE_DOT: Record<string, string> = { done: "bg-accent", in_progress: "bg-[#93a6d8]", planned: "bg-fg-subtle" };
@@ -25,7 +26,7 @@ export default async function ProjectOverviewPage({ params }: { params: Promise<
   const { project } = await loadProject(params);
   const [notes, events, features, tools, members] = await Promise.all([
     getNotes(project.id, 3),
-    getTimeline(project.id, 5),
+    getHistory(project.id).then((items) => items.slice(0, 6)),
     getFeatures(project.id),
     getTools(project.id),
     getMembers(project.id),
@@ -111,7 +112,7 @@ export default async function ProjectOverviewPage({ params }: { params: Promise<
               </ButtonLink>
             }
           />
-          <TimelineList events={events} />
+          <HistoryList items={events} compact />
         </section>
       </div>
 

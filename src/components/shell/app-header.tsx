@@ -3,17 +3,31 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState, useTransition } from "react";
-import { FolderKanban, LogOut, Plus, Search, SquarePen } from "lucide-react";
+import { Activity, FileText, Flag, FolderKanban, History, ListChecks, LogOut, Plus, Scale, Search, SquarePen, Wrench } from "lucide-react";
+import type { ReactNode } from "react";
 import { Wordmark } from "@/components/brand/logo";
 import { Kbd } from "@/components/ui/badge";
 import { buttonStyles } from "@/components/ui/button";
-import { CommandMenu, type CommandItem } from "@/components/ui/command-menu";
+import { CommandMenu, type CommandItem, type RemoteGroup } from "@/components/ui/command-menu";
+import { SEARCH_GROUP_LABELS, normalizeQuery, type SearchGroup } from "@/domain/search";
+import { useGlobalSearch } from "./use-global-search";
 import { Dropdown } from "@/components/ui/dropdown";
 import { StatusDot } from "@/components/ui/status";
 import { PROJECT_STATUS_LABELS, type ProjectStatus } from "@/domain/project";
 import { cn } from "@/lib/cn";
 import { useIsMac } from "@/lib/use-platform";
 import { logout } from "@/server/auth/actions";
+
+const SEARCH_ICONS: Record<SearchGroup, ReactNode> = {
+  projects: <FolderKanban />,
+  decisions: <Scale />,
+  notes: <FileText />,
+  features: <ListChecks />,
+  milestones: <Flag />,
+  timeline: <History />,
+  activity: <Activity />,
+  tools: <Wrench />,
+};
 
 type ProjectIndexItem = { id: string; name: string; codename: string | null; status: ProjectStatus };
 
@@ -26,6 +40,8 @@ export function AppHeader({ user, projects }: { user: { name: string; email: str
   const router = useRouter();
   const pathname = usePathname();
   const [paletteOpen, setPaletteOpen] = useState(false);
+  const [query, setQuery] = useState("");
+  const { result, loading, search } = useGlobalSearch();
   const [signingOut, startSignOut] = useTransition();
   const isMac = useIsMac();
 
@@ -67,6 +83,28 @@ export function AppHeader({ user, projects }: { user: { name: string; email: str
     ],
     [projects, router, signOut],
   );
+
+  const remote = useMemo<RemoteGroup[]>(
+    () =>
+      // Only show results that belong to the query currently typed — never stale ones.
+      query.trim().length >= 2 && result && result.query === normalizeQuery(query)
+        ? result.groups.map((g) => ({
+            group: SEARCH_GROUP_LABELS[g.group],
+            count: g.count,
+            items: g.hits.map((hit) => ({
+              id: `${g.group}-${hit.id}`,
+              group: SEARCH_GROUP_LABELS[g.group],
+              label: hit.title,
+              description: g.group === "projects" ? hit.snippet : [hit.projectName, hit.snippet].filter(Boolean).join(" · "),
+              icon: g.group === "projects" && hit.kind ? <StatusDot status={hit.kind as ProjectStatus} className="mx-1" /> : SEARCH_ICONS[g.group],
+              onSelect: () => router.push(hit.href),
+            })),
+          }))
+        : [],
+    [query, result, router],
+  );
+
+  const localItems = query.trim().length >= 2 ? commands.filter((c) => c.group !== "Projetos") : commands;
 
   const initials = user.name
     .split(/\s+/)
@@ -140,7 +178,24 @@ export function AppHeader({ user, projects }: { user: { name: string; email: str
           />
         </div>
       </div>
-      <CommandMenu open={paletteOpen} onClose={() => setPaletteOpen(false)} items={commands} />
+      <CommandMenu
+        open={paletteOpen}
+        onClose={() => setPaletteOpen(false)}
+        items={localItems}
+        remote={remote}
+        loading={loading}
+        onQueryChange={(q) => {
+          setQuery(q);
+          search(q);
+        }}
+        footer={
+          <>
+            <span className="flex items-center gap-1"><Kbd>↑</Kbd><Kbd>↓</Kbd> navegar</span>
+            <span className="flex items-center gap-1"><Kbd>↵</Kbd> abrir</span>
+            {result && result.query === normalizeQuery(query) && query.trim().length >= 2 && <span className="font-numeric ml-auto">{result.total} resultados</span>}
+          </>
+        }
+      />
     </header>
   );
 }

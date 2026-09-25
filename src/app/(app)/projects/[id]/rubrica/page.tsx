@@ -16,8 +16,8 @@ export default async function RubricaPage({ params, searchParams }: { params: Pr
 
   return (
     <div className="mx-auto flex max-w-[920px] flex-col gap-8">
-      <SectionHeader title="Rubrica" description="O diário do projeto: notas, ideias, decisões e dúvidas, na ordem em que aconteceram." />
-      <NoteComposer key={requested ?? "composer"} projectId={project.id} startOpen={Boolean(requested)} defaultType={defaultType} />
+      <SectionHeader title="Rubrica" description="O diário do projeto: notas, ideias, decisões e dúvidas, na ordem em que aconteceram. Decisões, problemas e insights também entram na timeline." />
+      <NoteComposer key={requested ?? "composer"} projectId={project.id} startOpen={Boolean(requested)} defaultType={defaultType} knownTags={[...new Set(notes.flatMap((n) => n.tags))]} />
       {notes.length === 0 ? (
         <EmptyState
           compact
@@ -28,7 +28,7 @@ export default async function RubricaPage({ params, searchParams }: { params: Pr
       ) : (
         <NotesJournal
           projectId={project.id}
-          notes={notes.map((n) => ({ id: n.id, title: n.title, content: n.content, type: n.type, createdAt: n.createdAt.toISOString(), updatedAt: n.updatedAt.toISOString() }))}
+          notes={notes.map((n) => ({ id: n.id, title: n.title, content: n.content, type: n.type, tags: n.tags, createdAt: n.createdAt.toISOString(), updatedAt: n.updatedAt.toISOString() }))}
         />
       )}
     </div>
