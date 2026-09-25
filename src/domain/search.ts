@@ -39,7 +39,11 @@ export function normalizeQuery(raw: string) {
 export function snippetAround(text: string | null | undefined, query: string, radius = 60) {
   if (!text) return null;
   const plain = text.replace(/\s+/g, " ").trim();
-  const fold = (s: string) => s.normalize("NFD").replace(/\p{Diacritic}/gu, "").toLowerCase();
+  // Fold character by character so indices stay aligned with the original text.
+  const fold = (s: string) =>
+    Array.from(s, (c) => (c.normalize("NFD").replace(/\p{Diacritic}/gu, "") || c).charAt(0))
+      .join("")
+      .toLowerCase();
   const index = fold(plain).indexOf(fold(query));
   if (index < 0) return plain.length > radius * 2 ? `${plain.slice(0, radius * 2)}…` : plain;
   const start = Math.max(0, index - radius);
