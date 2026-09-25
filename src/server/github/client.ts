@@ -17,7 +17,7 @@ export type LookupResult =
   | { status: "not_found" }
   | { status: "unavailable" };
 
-export type GithubErrorCode = "not_found" | "unauthorized" | "rate_limited" | "unavailable";
+export type GithubErrorCode = "not_found" | "unauthorized" | "forbidden" | "rate_limited" | "unavailable";
 
 export class GithubError extends Error {
   constructor(
@@ -32,6 +32,7 @@ export class GithubError extends Error {
 export const GITHUB_ERROR_MESSAGES: Record<GithubErrorCode, string> = {
   not_found: "Repositório não encontrado. Ele pode ter sido renomeado, removido ou ser privado sem um token com acesso.",
   unauthorized: "O GitHub recusou a autorização. Verifique o GITHUB_TOKEN configurado no servidor.",
+  forbidden: "O GitHub recusou esta consulta. Tente novamente em alguns minutos, ou configure GITHUB_TOKEN no servidor.",
   rate_limited: "Limite de requisições do GitHub atingido. Tente novamente em alguns minutos (ou configure GITHUB_TOKEN para um limite maior).",
   unavailable: "Não foi possível falar com o GitHub agora. Tente novamente em instantes.",
 };
@@ -66,7 +67,10 @@ export function createGithubClient({ fetchImpl = fetch, token = process.env.GITH
     if (response.status === 429 || (response.status === 403 && response.headers.get("x-ratelimit-remaining") === "0")) {
       throw new GithubError("rate_limited", GITHUB_ERROR_MESSAGES.rate_limited);
     }
-    if (response.status === 403) throw new GithubError("unauthorized", GITHUB_ERROR_MESSAGES.unauthorized);
+    if (response.status === 403) {
+      // Without a token a 403 is usually an anonymous limit, not a credential problem.
+      throw token ? new GithubError("unauthorized", GITHUB_ERROR_MESSAGES.unauthorized) : new GithubError("forbidden", GITHUB_ERROR_MESSAGES.forbidden);
+    }
     throw new GithubError("unavailable", GITHUB_ERROR_MESSAGES.unavailable);
   }
 

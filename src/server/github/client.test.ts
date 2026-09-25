@@ -23,6 +23,7 @@ describe("GitHub client", () => {
     [403, { "x-ratelimit-remaining": "0" }, "rate_limited"],
     [429, {}, "rate_limited"],
     [500, {}, "unavailable"],
+    [403, {}, "forbidden"],
   ])("classifies HTTP %s", async (status, headers, code) => {
     const client = createGithubClient({ fetchImpl: respond(status, {}, headers as Record<string, string>), token: "" });
     await expect(client.getRepository({ owner: "o", name: "r" })).rejects.toMatchObject({ code });
