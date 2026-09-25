@@ -91,7 +91,7 @@ export default async function GithubPage({ params }: { params: Promise<{ id: str
           <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_300px] lg:gap-12">
             <ActivityFeed items={items} counts={{ commit: commits.length, pull_request: pulls.length, issue: issues.length, release: releases.length }} />
 
-            <aside className="flex flex-col gap-6">
+            <aside className="flex min-w-0 flex-col gap-6">
               <Surface padded>
                 <h2 className="eyebrow mb-4">Cadência</h2>
                 <CommitCadence days={cadence} />
@@ -107,8 +107,8 @@ export default async function GithubPage({ params }: { params: Promise<{ id: str
                 ) : (
                   <ul className="flex max-h-64 flex-col gap-2 overflow-y-auto">
                     {g.branches.map((b) => (
-                      <li key={b.name} className="flex items-center gap-2 text-body-sm">
-                        <span className="truncate font-mono text-[0.75rem] text-fg">{b.name}</span>
+                      <li key={b.name} className="flex min-w-0 items-center gap-2 text-body-sm">
+                        <span className="min-w-0 truncate font-mono text-[0.75rem] text-fg" title={b.name}>{b.name}</span>
                         {b.name === g.githubDefaultBranch && <span className="text-caption tracking-normal text-accent">padrão</span>}
                         {b.protected && <Shield className="size-3 shrink-0 text-fg-subtle" aria-label="Protegida" />}
                         <span className="ml-auto font-mono text-[0.6875rem] text-fg-subtle">{b.sha}</span>
@@ -128,7 +128,7 @@ export default async function GithubPage({ params }: { params: Promise<{ id: str
                 ) : (
                   <ul className="flex flex-col gap-2.5">
                     {g.contributors.slice(0, 12).map((c) => (
-                      <li key={c.login} className="flex items-center gap-2.5 text-body-sm">
+                      <li key={c.login} className="flex min-w-0 items-center gap-2.5 text-body-sm">
                         {c.avatarUrl ? (
                           // eslint-disable-next-line @next/next/no-img-element
                           <img src={`${c.avatarUrl}${c.avatarUrl.includes("?") ? "&" : "?"}s=48`} alt="" width={22} height={22} className="size-[22px] rounded-full bg-surface-3" loading="lazy" />

@@ -1,6 +1,7 @@
 import "server-only";
 import { sql, type SQL } from "drizzle-orm";
 import { likePattern, normalizeQuery, snippetAround, type SearchGroup, type SearchHit, type SearchResponse } from "@/domain/search";
+import { stripMarkdown } from "@/domain/markdown";
 import { db } from "@/server/db/client";
 
 const PER_GROUP = 6;
@@ -104,7 +105,7 @@ export async function globalSearch(ownerId: string, raw: string): Promise<Search
         id: r.id,
         group: g.group,
         title: r.title,
-        snippet: snippetAround(r.body, query),
+        snippet: snippetAround(r.body ? stripMarkdown(r.body) : null, query),
         projectId: r.project_id,
         projectName: r.project_name,
         href: href(g.group, r),

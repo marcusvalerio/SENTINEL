@@ -9,7 +9,7 @@ import { Wordmark } from "@/components/brand/logo";
 import { Kbd } from "@/components/ui/badge";
 import { buttonStyles } from "@/components/ui/button";
 import { CommandMenu, type CommandItem, type RemoteGroup } from "@/components/ui/command-menu";
-import { SEARCH_GROUP_LABELS, type SearchGroup } from "@/domain/search";
+import { SEARCH_GROUP_LABELS, normalizeQuery, type SearchGroup } from "@/domain/search";
 import { useGlobalSearch } from "./use-global-search";
 import { Dropdown } from "@/components/ui/dropdown";
 import { StatusDot } from "@/components/ui/status";
@@ -86,7 +86,8 @@ export function AppHeader({ user, projects }: { user: { name: string; email: str
 
   const remote = useMemo<RemoteGroup[]>(
     () =>
-      query.trim().length >= 2 && result
+      // Only show results that belong to the query currently typed — never stale ones.
+      query.trim().length >= 2 && result && result.query === normalizeQuery(query)
         ? result.groups.map((g) => ({
             group: SEARCH_GROUP_LABELS[g.group],
             count: g.count,
@@ -191,7 +192,7 @@ export function AppHeader({ user, projects }: { user: { name: string; email: str
           <>
             <span className="flex items-center gap-1"><Kbd>↑</Kbd><Kbd>↓</Kbd> navegar</span>
             <span className="flex items-center gap-1"><Kbd>↵</Kbd> abrir</span>
-            {result && query.trim().length >= 2 && <span className="font-numeric ml-auto">{result.total} resultados</span>}
+            {result && result.query === normalizeQuery(query) && query.trim().length >= 2 && <span className="font-numeric ml-auto">{result.total} resultados</span>}
           </>
         }
       />
