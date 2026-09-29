@@ -64,7 +64,7 @@ export const TIMELINE_EVENT_LABELS: Record<TimelineEventType, string> = {
  * Where an event comes from. The timeline shows the origin explicitly so the
  * story of a project reads as: what we decided, what we built, what shipped.
  */
-export const TIMELINE_ORIGINS = ["project", "rubrica", "development", "milestone"] as const;
+export const TIMELINE_ORIGINS = ["project", "rubrica", "development", "milestone", "decision"] as const;
 export type TimelineOrigin = (typeof TIMELINE_ORIGINS)[number];
 
 export const TIMELINE_ORIGIN_LABELS: Record<TimelineOrigin, string> = {
@@ -72,6 +72,7 @@ export const TIMELINE_ORIGIN_LABELS: Record<TimelineOrigin, string> = {
   rubrica: "Rubrica",
   development: "Desenvolvimento",
   milestone: "Milestones",
+  decision: "Decisões",
 };
 
 export function originOfEventType(type: TimelineEventType): TimelineOrigin {

@@ -73,4 +73,5 @@ export const ORIGIN_TONE: Record<TimelineOrigin, { dot: string; text: string; ri
   rubrica: { dot: "bg-accent", text: "text-accent", ring: "shadow-[inset_0_0_0_1px_rgb(215_196_133/0.4)]" },
   development: { dot: "bg-[#7fb0e8]", text: "text-[#9fc4ee]", ring: "shadow-[inset_0_0_0_1px_rgb(127_176_232/0.4)]" },
   milestone: { dot: "bg-success", text: "text-success", ring: "shadow-[inset_0_0_0_1px_rgb(134_185_156/0.4)]" },
+  decision: { dot: "bg-gold", text: "text-gold", ring: "shadow-[inset_0_0_0_1px_rgb(181_158_95/0.45)]" },
 };
