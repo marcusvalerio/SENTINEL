@@ -17,8 +17,14 @@ export function TabNav({ items, id, label, variant = "underline", className }: {
 
   // Keep the active tab visible in horizontally scrolling (mobile) tab bars.
   useEffect(() => {
-    const active = listRef.current?.querySelector<HTMLElement>('[aria-current="page"]');
-    active?.scrollIntoView({ block: "nearest", inline: "nearest" });
+    // Scroll only the bar itself — scrollIntoView would also scroll the page.
+    const list = listRef.current;
+    const bar = list?.parentElement;
+    const active = list?.querySelector<HTMLElement>('[aria-current="page"]');
+    if (!bar || !active) return;
+    const left = active.getBoundingClientRect().left - bar.getBoundingClientRect().left + bar.scrollLeft;
+    if (left < bar.scrollLeft) bar.scrollLeft = left - 16;
+    else if (left + active.offsetWidth > bar.scrollLeft + bar.clientWidth) bar.scrollLeft = left + active.offsetWidth - bar.clientWidth + 16;
   }, [items]);
 
   if (variant === "segmented") {
