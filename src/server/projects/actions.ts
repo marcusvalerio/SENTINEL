@@ -517,3 +517,22 @@ export async function deleteProject(projectId: string, confirmation: string): Pr
 
 // Re-exported for type-only use in client components.
 export type { ActionResult };
+
+/* -------------------------------------------------------------------------- */
+/* Current focus                                                                */
+/* -------------------------------------------------------------------------- */
+
+const focusSchema = z.string().trim().max(280, "Use no máximo 280 caracteres.");
+
+/** The one thing the project is about right now. Empty clears it. */
+export async function setCurrentFocus(projectId: string, focus: string): Promise<ActionResult> {
+  const user = await requireUser();
+  const parsed = focusSchema.safeParse(focus);
+  if (!parsed.success) return { ok: false, error: parsed.error.issues[0]?.message ?? GENERIC_ERROR };
+  const owned = await ownedProjectId(user.id, projectId);
+  if (!owned) return { ok: false, error: "Projeto não encontrado." };
+  await db.update(projects).set({ currentFocus: parsed.data || null, lastActivityAt: new Date() }).where(eq(projects.id, owned.id));
+  revalidatePath(`/projects/${owned.id}`, "layout");
+  revalidatePath("/", "layout");
+  return { ok: true };
+}

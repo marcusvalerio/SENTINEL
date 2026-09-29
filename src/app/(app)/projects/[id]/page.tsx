@@ -6,7 +6,12 @@ import { HistoryList } from "@/components/project/history-list";
 import { Badge } from "@/components/ui/badge";
 import { ButtonLink } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
-import { SectionHeader, Surface } from "@/components/ui/surface";
+import { SectionHeader } from "@/components/ui/surface";
+import { AttentionList } from "@/components/command-center/sections";
+import { CopyContextButton } from "@/components/project/copy-context";
+import { AsideBlock, HealthSignals, RepositoryLine, StackList } from "@/components/project/dna";
+import { FocusEditor } from "@/components/project/focus-editor";
+import { isQuietWeek, projectContextMarkdown, weeklyBrief } from "@/domain/project-brief";
 import {
   ENGAGEMENT_LABELS,
   FEATURE_STATUSES,
@@ -17,27 +22,70 @@ import {
 import { stripMarkdown } from "@/domain/markdown";
 import { formatDate, formatRelative } from "@/lib/format";
 import { loadProject } from "@/server/projects/context";
-import { getHistory } from "@/server/projects/intelligence";
+import { projectHealth } from "@/server/intelligence/health";
+import { buildProjectContext, weekCounts } from "@/server/projects/brief";
+import { getHistory, getMilestones } from "@/server/projects/intelligence";
 import { getFeatures, getMembers, getNotes, getTools } from "@/server/projects/queries";
 
 const FEATURE_BAR: Record<string, string> = { done: "bg-accent", in_progress: "bg-[#93a6d8]", planned: "bg-surface-3" };
+const SOURCE_LABELS = { manual: "Criado manualmente", github_import: "Importado do GitHub", pre_project: "Pré-projeto" } as const;
 const FEATURE_DOT: Record<string, string> = { done: "bg-accent", in_progress: "bg-[#93a6d8]", planned: "bg-fg-subtle" };
 
 export default async function ProjectOverviewPage({ params }: { params: Promise<{ id: string }> }) {
-  const { project } = await loadProject(params);
-  const [notes, events, features, tools, members] = await Promise.all([
+  const { user, project } = await loadProject(params);
+  const [notes, events, features, tools, members, milestones, health, week] = await Promise.all([
     getNotes(project.id, 3),
     getHistory(project.id).then((items) => items.slice(0, 6)),
     getFeatures(project.id),
     getTools(project.id),
     getMembers(project.id),
+    getMilestones(project.id),
+    projectHealth(user.id, project.id),
+    weekCounts(project.id),
   ]);
+  const attention = health?.attention ?? [];
+  const context = projectContextMarkdown(await buildProjectContext(project, attention.map((a) => `${a.title} — ${a.reason}`)));
+  const brief = weeklyBrief(week);
+  const nextMilestone = milestones.find((m) => m.status === "active") ?? milestones.find((m) => m.status === "planned");
   const base = `/projects/${project.id}`;
   const byStatus = FEATURE_STATUSES.map((s) => ({ status: s, count: features.filter((f) => f.status === s).length }));
 
   return (
-    <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_340px] lg:gap-12">
+    <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_360px] lg:gap-10">
       <div className="flex min-w-0 flex-col gap-12">
+        <FocusEditor key={project.currentFocus ?? ""} projectId={project.id} focus={project.currentFocus} />
+
+        {/* What needs attention — explainable, from stored data only */}
+        <section className="flex flex-col gap-3" aria-labelledby="attention">
+          <h2 id="attention" className="eyebrow">
+            O que precisa da sua atenção
+          </h2>
+          <AttentionList items={attention} showProject={false} empty={<p className="text-body-sm text-fg-muted">Nada pedindo atenção agora. Os sinais ao lado explicam por quê.</p>} />
+        </section>
+
+        {/* Last 7 days — deterministic sentences */}
+        <section className="flex flex-col gap-3" aria-labelledby="week">
+          <h2 id="week" className="eyebrow">
+            Últimos 7 dias
+          </h2>
+          {isQuietWeek(week) ? (
+            <p className="text-body text-fg-muted">Semana silenciosa: nenhum registro, commit ou entrega nos últimos 7 dias.</p>
+          ) : brief.length === 0 ? (
+            <p className="text-body text-fg-muted">
+              {week.events} {week.events === 1 ? "evento registrado" : "eventos registrados"} na linha do tempo.
+            </p>
+          ) : (
+            <ul className="flex flex-col gap-1.5">
+              {brief.map((line) => (
+                <li key={line} className="flex items-baseline gap-3 text-body text-fg">
+                  <span className="size-1 shrink-0 translate-y-[-2px] rounded-full bg-accent/70" aria-hidden />
+                  {line}
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+
         {/* Purpose */}
         <section className="flex flex-col gap-6" aria-labelledby="purpose">
           <h2 id="purpose" className="eyebrow">
@@ -47,10 +95,20 @@ export default async function ProjectOverviewPage({ params }: { params: Promise<
             <p className="font-display text-h3 leading-snug font-normal tracking-[-0.012em] whitespace-pre-line text-fg-strong sm:text-[1.375rem]">{project.primaryGoal}</p>
             <footer className="mt-3 text-caption tracking-normal text-fg-subtle">Objetivo principal</footer>
           </blockquote>
-          {project.problem && (
-            <div className="flex flex-col gap-1.5">
-              <h3 className="eyebrow">Problema</h3>
-              <p className="max-w-[72ch] text-body whitespace-pre-line text-fg">{project.problem}</p>
+          {(project.problem || project.audience) && (
+            <div className="grid gap-6 sm:grid-cols-2">
+              {project.problem && (
+                <div className="flex flex-col gap-1.5">
+                  <h3 className="eyebrow">Problema</h3>
+                  <p className="max-w-[72ch] font-reading text-reading whitespace-pre-line text-fg">{project.problem}</p>
+                </div>
+              )}
+              {project.audience && (
+                <div className="flex flex-col gap-1.5">
+                  <h3 className="eyebrow">Público</h3>
+                  <p className="max-w-[72ch] font-reading text-reading whitespace-pre-line text-fg">{project.audience}</p>
+                </div>
+              )}
             </div>
           )}
           <Link href={`${base}/objetivos`} className="group inline-flex w-fit items-center gap-1.5 text-body-sm text-fg-muted transition-colors hover:text-accent">
@@ -85,10 +143,10 @@ export default async function ProjectOverviewPage({ params }: { params: Promise<
               }
             />
           ) : (
-            <ul className="flex flex-col divide-y divide-line overflow-hidden rounded-lg bg-surface/60 shadow-[inset_0_0_0_1px_var(--color-line)]">
+            <ul className="flex flex-col divide-y divide-line border-y border-line">
               {notes.map((note) => (
                 <li key={note.id}>
-                  <Link href={`${base}/rubrica#note-${note.id}`} className="flex flex-col gap-2 px-5 py-4 transition-colors hover:bg-surface-2/60 sm:flex-row sm:items-start sm:gap-4">
+                  <Link href={`${base}/rubrica#note-${note.id}`} className="row-hover -mx-3 flex flex-col gap-2 rounded-md px-3 py-4 sm:flex-row sm:items-start sm:gap-4">
                     <span className="font-numeric w-24 shrink-0 pt-0.5 text-caption tracking-normal text-fg-subtle">{formatDate(note.createdAt, "numeric")}</span>
                     <span className="flex min-w-0 flex-1 flex-col gap-1">
                       <span className="text-body-sm font-medium text-fg-strong">{note.title}</span>
@@ -117,10 +175,13 @@ export default async function ProjectOverviewPage({ params }: { params: Promise<
         </section>
       </div>
 
-      {/* Aside */}
-      <aside className="flex flex-col gap-6">
-        <Surface padded>
-          <h2 className="eyebrow mb-4">Detalhes</h2>
+      {/* Aside — Project DNA. Open blocks separated by hairlines. */}
+      <aside className="flex flex-col gap-7 lg:border-l lg:border-line lg:pl-10">
+        <AsideBlock title="Saúde" action={<CopyContextButton markdown={context} />}>
+          {health ? <HealthSignals signals={health.signals} /> : null}
+        </AsideBlock>
+
+        <AsideBlock title="DNA do projeto">
           <DetailList
             items={[
               { label: "Status", value: PROJECT_STATUS_LABELS[project.status] },
@@ -130,24 +191,55 @@ export default async function ProjectOverviewPage({ params }: { params: Promise<
               { label: "Início", value: project.startedOn ? formatDate(project.startedOn) : null },
               { label: "Lançamento", value: project.launchTargetOn ? formatDate(project.launchTargetOn) : project.desiredDeadline },
               { label: "Relação", value: project.engagement ? [ENGAGEMENT_LABELS[project.engagement], project.clientName].filter(Boolean).join(" · ") : null },
-              { label: "Registrado", value: formatDate(project.createdAt) },
+              { label: "Origem", value: SOURCE_LABELS[project.source] },
               { label: "Atualizado", value: <span suppressHydrationWarning>{formatRelative(project.updatedAt)}</span> },
             ]}
           />
-        </Surface>
+        </AsideBlock>
 
-        <Surface padded>
-          <div className="mb-4 flex items-center justify-between">
-            <h2 className="eyebrow">Escopo</h2>
+        <AsideBlock
+          title="Próximo milestone"
+          action={
+            <Link href={`${base}/roadmap`} className="text-caption tracking-normal text-fg-muted transition-colors hover:text-accent">
+              Roadmap
+            </Link>
+          }
+        >
+          {nextMilestone ? (
+            <Link href={`${base}/roadmap#milestone-${nextMilestone.id}`} className="group flex flex-col gap-0.5">
+              <span className="text-body-sm font-medium text-fg-strong transition-colors group-hover:text-accent">{nextMilestone.name}</span>
+              <span className="text-caption tracking-normal text-fg-subtle">{nextMilestone.dueOn ? `Previsto para ${formatDate(nextMilestone.dueOn)}` : "Sem data prevista"}</span>
+            </Link>
+          ) : (
+            <p className="text-body-sm text-fg-subtle">Nenhum milestone em aberto.</p>
+          )}
+        </AsideBlock>
+
+        <AsideBlock
+          title="Stack"
+          action={
+            <Link href={`${base}/tecnologia`} className="text-caption tracking-normal text-fg-muted transition-colors hover:text-accent">
+              Tecnologia
+            </Link>
+          }
+        >
+          {project.github && <RepositoryLine owner={project.github.githubOwner} name={project.github.githubRepositoryName} href={`${base}/github`} />}
+          <StackList stack={project.stack ?? []} />
+        </AsideBlock>
+
+        <AsideBlock
+          title="Escopo"
+          action={
             <Link href={`${base}/escopo`} className="text-caption tracking-normal text-fg-muted transition-colors hover:text-accent">
               {features.length} {features.length === 1 ? "funcionalidade" : "funcionalidades"}
             </Link>
-          </div>
+          }
+        >
           {features.length === 0 ? (
             <p className="text-body-sm text-fg-subtle">Nenhuma funcionalidade registrada.</p>
           ) : (
             <div className="flex flex-col gap-3">
-              <div className="flex h-1.5 overflow-hidden rounded-full bg-surface-3" aria-hidden>
+              <div className="flex h-1 overflow-hidden rounded-full bg-surface-3" aria-hidden>
                 {byStatus.map(({ status, count }) =>
                   count > 0 ? <span key={status} className={FEATURE_BAR[status]} style={{ width: `${(count / features.length) * 100}%` }} /> : null,
                 )}
@@ -165,15 +257,16 @@ export default async function ProjectOverviewPage({ params }: { params: Promise<
               </ul>
             </div>
           )}
-        </Surface>
+        </AsideBlock>
 
-        <Surface padded>
-          <div className="mb-4 flex items-center justify-between">
-            <h2 className="eyebrow">Ferramentas</h2>
+        <AsideBlock
+          title="Ferramentas"
+          action={
             <Link href={`${base}/ferramentas`} className="text-caption tracking-normal text-fg-muted transition-colors hover:text-accent">
               Gerenciar
             </Link>
-          </div>
+          }
+        >
           {tools.length === 0 ? (
             <Link href={`${base}/ferramentas`} className="flex items-center gap-2 text-body-sm text-fg-subtle transition-colors hover:text-fg">
               <Wrench className="size-3.5" aria-hidden />
@@ -188,11 +281,10 @@ export default async function ProjectOverviewPage({ params }: { params: Promise<
               ))}
             </ul>
           )}
-        </Surface>
+        </AsideBlock>
 
         {members.length > 0 && (
-          <Surface padded>
-            <h2 className="eyebrow mb-4">Pessoas</h2>
+          <AsideBlock title="Pessoas">
             <ul className="flex flex-col gap-3">
               {members.map((m) => (
                 <li key={m.id} className="flex items-center gap-3">
@@ -211,7 +303,7 @@ export default async function ProjectOverviewPage({ params }: { params: Promise<
                 </li>
               ))}
             </ul>
-          </Surface>
+          </AsideBlock>
         )}
       </aside>
     </div>
