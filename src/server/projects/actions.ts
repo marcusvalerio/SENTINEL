@@ -85,7 +85,7 @@ export async function deleteDraft(draftId: string): Promise<ActionResult> {
   const user = await requireUser();
   if (!isUuid(draftId)) return { ok: false, error: "Rascunho não encontrado." };
   await db.delete(projectDrafts).where(and(eq(projectDrafts.id, draftId), eq(projectDrafts.ownerId, user.id)));
-  revalidatePath("/");
+  revalidatePath("/", "layout");
   return { ok: true };
 }
 
@@ -209,7 +209,7 @@ export async function createProject(input: {
       return id;
     });
 
-    revalidatePath("/");
+    revalidatePath("/", "layout");
     return { ok: true, projectId };
   } catch (error) {
     console.error("[projects] create failed", error instanceof Error ? error.message : error);
@@ -298,7 +298,7 @@ export async function updateProject(input: {
       await recomputeProgress(projectId, tx);
     });
 
-    revalidatePath("/");
+    revalidatePath("/", "layout");
     revalidatePath(`/projects/${projectId}`, "layout");
     return { ok: true, projectId };
   } catch (error) {
@@ -341,7 +341,7 @@ export async function setProjectStatus(projectId: string, status: ProjectStatus)
     await tx.update(projects).set({ status, statusChangedAt: new Date(), lastActivityAt: new Date() }).where(eq(projects.id, owned.id));
     await logStatusChange(tx, owned.id, before.status, status, user.id);
   });
-  revalidatePath("/");
+  revalidatePath("/", "layout");
   revalidatePath(`/projects/${owned.id}`, "layout");
   return { ok: true };
 }
@@ -370,7 +370,7 @@ export async function setProjectProgress(projectId: string, input: z.input<typeo
     await recomputeProgress(owned.id, tx);
   });
   revalidatePath(`/projects/${owned.id}`, "layout");
-  revalidatePath("/");
+  revalidatePath("/", "layout");
   return { ok: true };
 }
 
@@ -393,7 +393,7 @@ export async function setFeatureStatus(projectId: string, featureId: string, sta
     await touchProject(owned.id, tx);
   });
   revalidatePath(`/projects/${owned.id}`, "layout");
-  revalidatePath("/");
+  revalidatePath("/", "layout");
   return { ok: true };
 }
 
@@ -457,7 +457,7 @@ export async function deleteProject(projectId: string, confirmation: string): Pr
     return { ok: false, error: "Digite o nome do projeto exatamente como aparece para confirmar." };
   }
   await db.delete(projects).where(and(eq(projects.id, owned.id), eq(projects.ownerId, user.id)));
-  revalidatePath("/");
+  revalidatePath("/", "layout");
   return { ok: true };
 }
 

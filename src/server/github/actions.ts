@@ -108,7 +108,7 @@ export async function connectRepository(projectId: string, reference: string): P
   const sync = repo ? await syncProjectRepository(owned.id, client) : null;
 
   revalidatePath(`/projects/${owned.id}`, "layout");
-  revalidatePath("/");
+  revalidatePath("/", "layout");
   return { ok: true, verified: values.verified, synced: Boolean(sync?.ok), syncError: sync && !sync.ok ? sync.error : undefined };
 }
 
@@ -118,7 +118,7 @@ export async function syncRepository(projectId: string): Promise<ActionResult<{ 
   if (!owned) return { ok: false, error: "Projeto não encontrado." };
   const result = await syncProjectRepository(owned.id);
   revalidatePath(`/projects/${owned.id}`, "layout");
-  revalidatePath("/");
+  revalidatePath("/", "layout");
   if (!result.ok) return { ok: false, error: result.error };
   return { ok: true, counts: result.counts, syncedAt: result.syncedAt.toISOString() };
 }
@@ -144,6 +144,6 @@ export async function disconnectRepository(projectId: string): Promise<ActionRes
     }
   });
   revalidatePath(`/projects/${owned.id}`, "layout");
-  revalidatePath("/");
+  revalidatePath("/", "layout");
   return { ok: true };
 }

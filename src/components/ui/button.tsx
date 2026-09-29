@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { ComponentProps, ReactNode } from "react";
 import { cn } from "@/lib/cn";
 import { Spinner } from "./spinner";
+import { SuccessMark } from "./success-mark";
 
 export type ButtonVariant = "primary" | "secondary" | "ghost" | "danger" | "identity";
 export type ButtonSize = "sm" | "md" | "lg";
@@ -51,12 +52,13 @@ export function Button({
   leading,
   trailing,
   loading = false,
+  succeeded = false,
   className,
   children,
   disabled,
   type = "button",
   ...props
-}: ComponentProps<"button"> & CommonProps & { loading?: boolean }) {
+}: ComponentProps<"button"> & CommonProps & { loading?: boolean; succeeded?: boolean }) {
   return (
     <button
       type={type}
@@ -65,7 +67,7 @@ export function Button({
       aria-busy={loading || undefined}
       {...props}
     >
-      {loading ? <Spinner /> : leading}
+      {loading ? <Spinner /> : succeeded ? <SuccessMark /> : leading}
       {children}
       {trailing}
     </button>

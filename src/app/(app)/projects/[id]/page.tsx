@@ -14,6 +14,7 @@ import {
   PROJECT_STATUS_LABELS,
   PROJECT_TYPE_LABELS,
 } from "@/domain/project";
+import { stripMarkdown } from "@/domain/markdown";
 import { formatDate, formatRelative } from "@/lib/format";
 import { loadProject } from "@/server/projects/context";
 import { getHistory } from "@/server/projects/intelligence";
@@ -91,7 +92,7 @@ export default async function ProjectOverviewPage({ params }: { params: Promise<
                     <span className="font-numeric w-24 shrink-0 pt-0.5 text-caption tracking-normal text-fg-subtle">{formatDate(note.createdAt, "numeric")}</span>
                     <span className="flex min-w-0 flex-1 flex-col gap-1">
                       <span className="text-body-sm font-medium text-fg-strong">{note.title}</span>
-                      {note.content && <span className="line-clamp-2 text-body-sm text-fg-muted">{note.content}</span>}
+                      {note.content && <span className="line-clamp-2 text-body-sm text-fg-muted">{stripMarkdown(note.content)}</span>}
                     </span>
                     <NoteTypeTag type={note.type} className="self-start" />
                   </Link>
