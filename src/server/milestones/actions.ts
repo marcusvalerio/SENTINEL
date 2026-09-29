@@ -58,7 +58,7 @@ export async function createMilestone(projectId: string, input: MilestoneInput):
       return created!.id;
     });
     revalidatePath(`/projects/${owned.id}`, "layout");
-    revalidatePath("/");
+    revalidatePath("/", "layout");
     return { ok: true, milestoneId };
   } catch (error) {
     console.error("[milestones] create failed", error instanceof Error ? error.message : error);
@@ -93,7 +93,7 @@ export async function updateMilestone(projectId: string, milestoneId: string, in
   });
   if (!found) return { ok: false, error: "Milestone não encontrado." };
   revalidatePath(`/projects/${owned.id}`, "layout");
-  revalidatePath("/");
+  revalidatePath("/", "layout");
   return { ok: true };
 }
 
@@ -124,7 +124,7 @@ export async function setMilestoneStatus(projectId: string, milestoneId: string,
   });
   if (!found) return { ok: false, error: "Milestone não encontrado." };
   revalidatePath(`/projects/${owned.id}`, "layout");
-  revalidatePath("/");
+  revalidatePath("/", "layout");
   return { ok: true };
 }
 
@@ -138,6 +138,6 @@ export async function deleteMilestone(projectId: string, milestoneId: string): P
     await recomputeProgress(owned.id, tx);
   });
   revalidatePath(`/projects/${owned.id}`, "layout");
-  revalidatePath("/");
+  revalidatePath("/", "layout");
   return { ok: true };
 }

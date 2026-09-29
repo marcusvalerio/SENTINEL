@@ -1,6 +1,6 @@
 "use server";
 
-import { and, eq, notInArray } from "drizzle-orm";
+import { and, eq, notInArray, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import {
@@ -20,14 +20,19 @@ import {
   type ProjectStatus,
 } from "@/domain/project";
 import type { TimelineEventType } from "@/domain/timeline";
+import type { StackItem } from "@/domain/stack";
+import type { ItemOrigin } from "@/domain/roadmap";
 import { requireUser } from "@/server/auth/session";
+import { connectRepositoryForProject } from "@/server/github/connect";
 import { db, type Transaction } from "@/server/db/client";
 import {
+  preProjects,
   projectDrafts,
   projectFeatures,
   projectFinances,
   projectMembers,
   projectReferences,
+  projectTools,
   projects,
 } from "@/server/db/schema";
 import {
@@ -63,7 +68,8 @@ export async function saveDraft(input: {
     if (input.draftId && isUuid(input.draftId)) {
       const [updated] = await db
         .update(projectDrafts)
-        .set({ data: values, currentStep: step, title })
+        // Keep the draft's origin (import / pre-project) across autosaves.
+        .set({ data: sql`${JSON.stringify(values)}::jsonb || jsonb_build_object('__origin', ${projectDrafts.data} -> '__origin')`, currentStep: step, title })
         .where(and(eq(projectDrafts.id, input.draftId), eq(projectDrafts.ownerId, user.id)))
         .returning({ id: projectDrafts.id, updatedAt: projectDrafts.updatedAt });
       if (updated) return { ok: true, draftId: updated.id, savedAt: updated.updatedAt.toISOString() };
@@ -85,7 +91,7 @@ export async function deleteDraft(draftId: string): Promise<ActionResult> {
   const user = await requireUser();
   if (!isUuid(draftId)) return { ok: false, error: "Rascunho não encontrado." };
   await db.delete(projectDrafts).where(and(eq(projectDrafts.id, draftId), eq(projectDrafts.ownerId, user.id)));
-  revalidatePath("/");
+  revalidatePath("/", "layout");
   return { ok: true };
 }
 
@@ -157,20 +163,42 @@ async function upsertLead(tx: Transaction, projectId: string, leadName: string |
   }
 }
 
+/** Where a new project came from. Carried from the entry flow into the record. */
+export type ProjectOrigin =
+  | { kind: "pre_project"; preProjectId: string }
+  | { kind: "github_import"; repository: string; stack: StackItem[]; analysis: Record<string, unknown> };
+
 export async function createProject(input: {
   values: ProjectFormValues;
   draftId: string | null;
-}): Promise<ActionResult<{ projectId: string }>> {
+  origin?: ProjectOrigin | null;
+}): Promise<ActionResult<{ projectId: string; githubSynced?: boolean }>> {
   const user = await requireUser();
   const result = validate(input.values);
   if (!result.ok) return result;
   const data = result.data;
+  const origin = input.origin ?? null;
+  if (origin?.kind === "pre_project") {
+    const pre = isUuid(origin.preProjectId)
+      ? await db.select({ id: preProjects.id }).from(preProjects).where(and(eq(preProjects.id, origin.preProjectId), eq(preProjects.ownerId, user.id)))
+      : [];
+    if (pre.length === 0) return { ok: false, error: "Pré-projeto de origem não encontrado." };
+  }
+  const featureOrigin: ItemOrigin = origin?.kind === "github_import" ? "github_import" : origin?.kind === "pre_project" ? "pre_project" : "scope";
 
   try {
     const projectId = await db.transaction(async (tx) => {
       const [project] = await tx
         .insert(projects)
-        .values({ ownerId: user.id, ...projectColumns(data), progressSource: "features", progress: 0 })
+        .values({
+          ownerId: user.id,
+          ...projectColumns(data),
+          progressSource: "features",
+          progress: 0,
+          source: origin?.kind ?? "manual",
+          stack: origin?.kind === "github_import" ? origin.stack.slice(0, 80) : [],
+          importAnalysis: origin?.kind === "github_import" ? origin.analysis : null,
+        })
         .returning({ id: projects.id });
       const id = project!.id;
 
@@ -183,6 +211,7 @@ export async function createProject(input: {
             name: f.name,
             description: f.description,
             priority: f.priority,
+            origin: featureOrigin,
             position,
           })),
         );
@@ -194,14 +223,32 @@ export async function createProject(input: {
       }
       await upsertLead(tx, id, data.leadName);
 
+      const originText =
+        origin?.kind === "github_import" ? ` Importado de ${origin.repository}.` : origin?.kind === "pre_project" ? " Convertido de um pré-projeto aprovado." : "";
       await logEvent(tx, {
         projectId: id,
         type: "created",
         title: "Projeto registrado no SENTINEL",
-        description: `Registrado com status “${PROJECT_STATUS_LABELS[data.status]}”.`,
-        metadata: { status: data.status, features: data.features.length },
+        description: `Registrado com status “${PROJECT_STATUS_LABELS[data.status]}”.${originText}`,
+        metadata: { status: data.status, features: data.features.length, origin: origin?.kind ?? "manual" },
         createdById: user.id,
       });
+      if (origin?.kind === "github_import" && Array.isArray(origin.analysis.tools)) {
+        const tools = (origin.analysis.tools as { name?: unknown; purpose?: unknown; category?: unknown }[])
+          .filter((t) => typeof t.name === "string" && t.name.length <= 80)
+          .slice(0, 12)
+          .map((t) => ({
+            projectId: id,
+            name: String(t.name),
+            purpose: typeof t.purpose === "string" ? t.purpose.slice(0, 300) : null,
+            category: t.category === "infrastructure" ? ("infrastructure" as const) : ("development" as const),
+            notes: "Registrada na importação do GitHub.",
+          }));
+        if (tools.length) await tx.insert(projectTools).values(tools).onConflictDoNothing();
+      }
+      if (origin?.kind === "pre_project") {
+        await tx.update(preProjects).set({ convertedProjectId: id, status: "approved" }).where(and(eq(preProjects.id, origin.preProjectId), eq(preProjects.ownerId, user.id)));
+      }
 
       if (input.draftId && isUuid(input.draftId)) {
         await tx.delete(projectDrafts).where(and(eq(projectDrafts.id, input.draftId), eq(projectDrafts.ownerId, user.id)));
@@ -209,8 +256,15 @@ export async function createProject(input: {
       return id;
     });
 
-    revalidatePath("/");
-    return { ok: true, projectId };
+    // Imported projects arrive connected and synced — the repository is part of their birth.
+    let githubSynced: boolean | undefined;
+    if (origin?.kind === "github_import") {
+      const connected = await connectRepositoryForProject(user.id, projectId, origin.repository);
+      githubSynced = connected.ok && connected.synced;
+    }
+
+    revalidatePath("/", "layout");
+    return { ok: true, projectId, githubSynced };
   } catch (error) {
     console.error("[projects] create failed", error instanceof Error ? error.message : error);
     return { ok: false, error: GENERIC_ERROR };
@@ -298,7 +352,7 @@ export async function updateProject(input: {
       await recomputeProgress(projectId, tx);
     });
 
-    revalidatePath("/");
+    revalidatePath("/", "layout");
     revalidatePath(`/projects/${projectId}`, "layout");
     return { ok: true, projectId };
   } catch (error) {
@@ -341,7 +395,7 @@ export async function setProjectStatus(projectId: string, status: ProjectStatus)
     await tx.update(projects).set({ status, statusChangedAt: new Date(), lastActivityAt: new Date() }).where(eq(projects.id, owned.id));
     await logStatusChange(tx, owned.id, before.status, status, user.id);
   });
-  revalidatePath("/");
+  revalidatePath("/", "layout");
   revalidatePath(`/projects/${owned.id}`, "layout");
   return { ok: true };
 }
@@ -370,7 +424,7 @@ export async function setProjectProgress(projectId: string, input: z.input<typeo
     await recomputeProgress(owned.id, tx);
   });
   revalidatePath(`/projects/${owned.id}`, "layout");
-  revalidatePath("/");
+  revalidatePath("/", "layout");
   return { ok: true };
 }
 
@@ -393,7 +447,7 @@ export async function setFeatureStatus(projectId: string, featureId: string, sta
     await touchProject(owned.id, tx);
   });
   revalidatePath(`/projects/${owned.id}`, "layout");
-  revalidatePath("/");
+  revalidatePath("/", "layout");
   return { ok: true };
 }
 
@@ -457,9 +511,28 @@ export async function deleteProject(projectId: string, confirmation: string): Pr
     return { ok: false, error: "Digite o nome do projeto exatamente como aparece para confirmar." };
   }
   await db.delete(projects).where(and(eq(projects.id, owned.id), eq(projects.ownerId, user.id)));
-  revalidatePath("/");
+  revalidatePath("/", "layout");
   return { ok: true };
 }
 
 // Re-exported for type-only use in client components.
 export type { ActionResult };
+
+/* -------------------------------------------------------------------------- */
+/* Current focus                                                                */
+/* -------------------------------------------------------------------------- */
+
+const focusSchema = z.string().trim().max(280, "Use no máximo 280 caracteres.");
+
+/** The one thing the project is about right now. Empty clears it. */
+export async function setCurrentFocus(projectId: string, focus: string): Promise<ActionResult> {
+  const user = await requireUser();
+  const parsed = focusSchema.safeParse(focus);
+  if (!parsed.success) return { ok: false, error: parsed.error.issues[0]?.message ?? GENERIC_ERROR };
+  const owned = await ownedProjectId(user.id, projectId);
+  if (!owned) return { ok: false, error: "Projeto não encontrado." };
+  await db.update(projects).set({ currentFocus: parsed.data || null, lastActivityAt: new Date() }).where(eq(projects.id, owned.id));
+  revalidatePath(`/projects/${owned.id}`, "layout");
+  revalidatePath("/", "layout");
+  return { ok: true };
+}

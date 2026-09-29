@@ -30,8 +30,8 @@ const GRID = "lg:grid-cols-[minmax(0,1fr)_180px_150px_120px_170px]";
 
 export function ProjectList({ projects }: { projects: ProjectRow[] }) {
   return (
-    <div className="overflow-hidden rounded-lg bg-surface/60 shadow-[inset_0_0_0_1px_var(--color-line)]">
-      <div className={`hidden border-b border-line px-5 py-2.5 lg:grid ${GRID} lg:gap-6`} aria-hidden>
+    <div>
+      <div className={`hidden border-b border-line pb-3 lg:grid ${GRID} lg:gap-6 lg:px-5`} aria-hidden>
         {["Projeto", "Estado", "Progresso", "Atividade", "Repositório"].map((label) => (
           <span key={label} className="eyebrow">
             {label}
@@ -57,7 +57,7 @@ function ProjectRowLink({ project }: { project: ProjectRow }) {
   return (
     <Link
       href={`/projects/${project.id}`}
-      className={`group relative grid grid-cols-1 gap-3 px-4 py-4 transition-colors duration-150 hover:bg-surface-2/70 focus-visible:bg-surface-2/70 focus-visible:shadow-none sm:px-5 lg:items-center lg:gap-6 ${GRID}`}
+      className={`group row-hover relative grid grid-cols-1 gap-3 rounded-md px-1 py-5 focus-visible:bg-surface-2/70 sm:px-5 lg:items-center lg:gap-6 ${GRID}`}
     >
       <span className="absolute inset-y-3 left-0 w-[2px] origin-center scale-y-0 rounded-full bg-accent transition-transform duration-200 group-hover:scale-y-100 group-focus-visible:scale-y-100" aria-hidden />
 

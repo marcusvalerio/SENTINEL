@@ -53,7 +53,7 @@ export async function createNote(projectId: string, input: NoteInput): Promise<A
       return note!.id;
     });
     revalidatePath(`/projects/${owned.id}`, "layout");
-    revalidatePath("/");
+    revalidatePath("/", "layout");
     return { ok: true, noteId };
   } catch (error) {
     console.error("[notes] create failed", error instanceof Error ? error.message : error);

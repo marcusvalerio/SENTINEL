@@ -37,7 +37,7 @@ function renderInline(nodes: Inline[], onTag?: (tag: string) => ReactNode): Reac
 export function Markdown({ source, className, onTag }: { source: string; className?: string; onTag?: (tag: string) => ReactNode }) {
   const blocks = parseMarkdown(source);
   return (
-    <div className={cn("flex max-w-[72ch] flex-col gap-3 text-body text-fg", className)}>
+    <div className={cn("prose-reading flex max-w-[70ch] flex-col gap-3", className)}>
       {blocks.map((b, i) => {
         switch (b.t) {
           case "p":

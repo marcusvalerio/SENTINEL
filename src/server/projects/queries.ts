@@ -4,6 +4,7 @@ import { cache } from "react";
 import { COLLECTION_STATUSES, type ProjectCollection, type ProjectStatus } from "@/domain/project";
 import { db } from "@/server/db/client";
 import {
+  projectDecisions,
   projectDrafts,
   projectFeatures,
   projectFinances,
@@ -127,6 +128,7 @@ export const getProjectCounts = cache(async (projectId: string) => {
       tools: sql<number>`(select count(*)::int from ${projectTools} where ${projectTools.projectId} = ${projectId})`,
       events: sql<number>`(select count(*)::int from ${projectTimelineEvents} where ${projectTimelineEvents.projectId} = ${projectId})`,
       references: sql<number>`(select count(*)::int from ${projectReferences} where ${projectReferences.projectId} = ${projectId})`,
+      decisions: sql<number>`(select count(*)::int from ${projectDecisions} where ${projectDecisions.projectId} = ${projectId})`,
     })
     .from(sql`(select 1) as one`);
   return row!;

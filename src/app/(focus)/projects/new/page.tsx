@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { ProjectWizard } from "@/components/project-form/project-wizard";
 import { emptyProjectForm, hydrateProjectForm } from "@/domain/project-form";
 import { requireUser } from "@/server/auth/session";
+import { readDraftOrigin } from "@/server/projects/drafts";
 import { getDraft } from "@/server/projects/queries";
 
 export const metadata: Metadata = { title: "Novo projeto" };
@@ -19,6 +20,7 @@ export default async function NewProjectPage({ searchParams }: { searchParams: P
       draftId={draft?.id ?? null}
       initialStep={draft?.currentStep ?? 0}
       savedAt={draft?.updatedAt.toISOString() ?? null}
+      origin={draft ? readDraftOrigin(draft.data) : null}
     />
   );
 }

@@ -4,6 +4,7 @@ SENTINEL é a memória operacional dos meus projetos. Ele registra o que um proj
 
 - **1.0 — Foundation** (`v1.0.0`): autenticação, design system, formulário de nascimento do projeto, overview, Rubrica, timeline.
 - **2.0 — Project Intelligence**: GitHub real (conexão, sincronização, atividade), milestones, progresso por fontes reais, timeline com origens, Rubrica 2.0 (Markdown, tags, busca, histórico), busca global ⌘K e ferramentas com categorias e custo.
+- **3.0 — Spaces**: Command Center, três entradas (manual, importação do GitHub, pré-projeto), Project DNA com saúde explicável, Inbox de ideias, roadmap Now/Next/Later/Future, Decisões, Assinaturas, finanças básicas e histórico de criação. Design revisto: menos caixas, mais linhas finas e respiro.
 
 Produção: https://sentinel-ashy-alpha.vercel.app
 
@@ -61,13 +62,17 @@ src/
     notes/ tools/ timeline/ milestones/  actions de cada módulo
     github/          cliente REST (erros tipados), sync idempotente, actions de conexão
     search/          busca global (sempre filtrada por owner_id)
+    import/          análise de repositório para importação
+    pre-projects/ ideas/ decisions/ roadmap/ subscriptions/  actions e queries de cada espaço
+    intelligence/    saúde dos projetos, Command Center, histórico de criação
   components/
     ui/              design system (Button, Input, Modal, Toast, Dropdown, CommandMenu, Stepper…)
     project-form/    wizard de criação/edição (6 etapas + revisão, autosave)
     project/         seções da página do projeto
   app/
     (auth)/login     login
-    (app)/           shell autenticado: dashboard e /projects/[id]/*
+    (app)/           shell autenticado: Command Center (/), /projects, /pre-projects, /inbox,
+                     /subscriptions, /history e /projects/[id]/*
     (focus)/         modo foco sem navegação: /projects/new e /projects/[id]/edit
 ```
 
@@ -95,6 +100,16 @@ src/
 - **Rubrica 2.0.** A Rubrica usa um dialeto Markdown pequeno, renderizado como elementos React (nunca HTML injetado; links só `http`, `https` e `mailto`). Tags vêm do campo de tags e das `#hashtags` no texto. Cada edição guarda a versão anterior em `project_note_revisions`. Registros de Decisão, Problema e Insight também entram na timeline.
 - **Busca global.** `GET /api/search` é um route handler, e não uma server action, para permitir requisições paralelas e canceláveis com `AbortController`. A busca usa `unaccent` com `ILIKE` e wildcards escapados, e agrupa resultados por tipo com contagem total.
 
+### Decisões da 3.0
+
+- **Detectado, inferido, informado.** A importação do GitHub lê README, `package.json`, árvore de arquivos, linguagens e commits. Cada fato carrega a origem: *detectado* (lido da fonte, com a evidência), *inferido* (conclusão do SENTINEL, visualmente tracejada) ou *informado* (dito por você). Uma inferência nunca aparece como fato, nem no "Copiar contexto" para IA.
+- **Saúde sem nota.** A saúde do projeto são quatro sinais (desenvolvimento, roadmap, GitHub, finanças) e uma lista de atenção. Cada item diz *por que* existe. Se falta dado, o sinal diz "não acompanhado" em vez de estimar.
+- **Resumo determinístico.** "Últimos 7 dias" são frases montadas a partir de contagens: nenhum modelo resume nada.
+- **Horizonte ≠ prioridade ≠ esforço.** O roadmap usa as funcionalidades existentes com `horizon` (now/next/later/future), `effort` (XS–XL), `origin` e `depends_on`. A migration `0002` preenche o horizonte a partir do status (em andamento ou concluída → Now; o resto → Next).
+- **Decisões na timeline.** Criar uma decisão ou mudar o status dela gera um evento com origem *Decisões*. Registros de Decisão da Rubrica podem virar decisões estruturadas; a anotação continua no lugar.
+- **Nenhum preço inventado.** Assinaturas sugeridas (Claude, ChatGPT, v0, Lovable) só preenchem o nome. Totais são somados por moeda, sem conversão. Créditos sob demanda nunca entram no custo mensal. A base de IA entra no custo de um projeto só quando você escolhe quantos meses aplicar (padrão: 2), e o que não tem valor aparece como "sem valor".
+- **Fundações prontas, sem burocracia.** `project_metric_values` e `project_experiments` já existem no schema para métricas de produto (MRR, churn, ativação…) e experimentos (hipótese → resultado → aprendizado → decisão). Ainda não há interface para eles: a estrutura cresce quando for usada.
+
 ## Próximos passos (a arquitetura já prevê)
 
-Sincronização automática (cron chamando `syncProjectRepository`), tarefas, documentação, tecnologia/stack, ledger financeiro, gestão de equipe na interface, anexos e menções na Rubrica, e múltiplos usuários na interface.
+Sincronização automática (cron chamando `syncProjectRepository`), interface para métricas e experimentos, tarefas, ledger financeiro, gestão de equipe na interface, anexos e menções na Rubrica, e múltiplos usuários na interface.

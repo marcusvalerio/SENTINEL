@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 export function StepHeader({ counter, title, description }: { counter: string; title: string; description: ReactNode }) {
   return (
     <header className="flex flex-col gap-4 pb-2">
-      <span className="eyebrow flex items-center gap-3 text-accent/90">
+      <span className="mono-label flex items-center gap-3 text-accent/90">
         <span>{counter}</span>
         <span className="h-px w-8 bg-accent/30" aria-hidden />
       </span>

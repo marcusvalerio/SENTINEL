@@ -45,7 +45,7 @@ export default async function ProjectLayout({ children, params }: { children: Re
         <div className="relative mx-auto flex w-full max-w-[1240px] flex-col gap-8 px-4 pt-8 sm:px-6 sm:pt-10 lg:px-8">
           <div className="flex flex-col gap-5">
             <nav aria-label="Trilha" className="flex items-center gap-1.5 text-body-sm text-fg-subtle">
-              <Link href="/" className="rounded-xs transition-colors hover:text-fg">
+              <Link href="/projects" className="rounded-xs transition-colors hover:text-fg">
                 Projetos
               </Link>
               <ChevronRight className="size-3.5" aria-hidden />
@@ -96,7 +96,7 @@ export default async function ProjectLayout({ children, params }: { children: Re
             />
           </section>
 
-          <ProjectSectionNav projectId={project.id} counts={{ rubrica: counts.notes, escopo: counts.features, roadmap: countedMilestones.length, ferramentas: counts.tools }} />
+          <ProjectSectionNav projectId={project.id} counts={{ rubrica: counts.notes, escopo: counts.features, roadmap: countedMilestones.length, decisoes: counts.decisions, ferramentas: counts.tools }} />
         </div>
       </div>
 

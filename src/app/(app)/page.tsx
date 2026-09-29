@@ -1,92 +1,143 @@
 import type { Metadata } from "next";
-import { FolderPlus, Plus, SearchX } from "lucide-react";
-import { DraftList } from "@/components/projects/draft-list";
-import { ProjectList } from "@/components/projects/project-list";
-import { ButtonLink } from "@/components/ui/button";
-import { EmptyState } from "@/components/ui/empty-state";
-import { TabNav } from "@/components/ui/tabs";
-import { PROJECT_COLLECTIONS, PROJECT_COLLECTION_LABELS, type ProjectCollection } from "@/domain/project";
+import Link from "next/link";
+import { ArrowRight, ClipboardList, PencilLine } from "lucide-react";
+import { GithubMark } from "@/components/brand/github-mark";
+import { CadenceStrip } from "@/components/command-center/cadence-strip";
+import { AttentionList, MilestoneAgenda, ProjectRows, RecentEvents, Section } from "@/components/command-center/sections";
+import { SummaryLine } from "@/components/command-center/summary-line";
+import { Reveal } from "@/components/motion/reveal";
+import { COLLECTION_STATUSES, type ProjectCollection } from "@/domain/project";
 import { requireUser } from "@/server/auth/session";
-import { countProjectsByStatus, listDrafts, listProjects } from "@/server/projects/queries";
+import { countInbox } from "@/server/ideas/queries";
+import { loadCommandCenter } from "@/server/intelligence/overview";
 
-export const metadata: Metadata = { title: "Projetos" };
+export const metadata: Metadata = { title: "Command Center" };
 
-const EMPTY_COLLECTION: Record<Exclude<ProjectCollection, "all">, string> = {
-  active: "Nenhum projeto ativo no momento.",
-  paused: "Nenhum projeto em pausa.",
-  completed: "Nenhum projeto concluído ainda.",
-  archived: "Nada arquivado por aqui.",
-};
+function greeting(name: string) {
+  const hour = Number(new Intl.DateTimeFormat("en-US", { hour: "numeric", hourCycle: "h23", timeZone: "America/Sao_Paulo" }).format(new Date()));
+  const part = hour < 5 ? "Boa noite" : hour < 12 ? "Bom dia" : hour < 18 ? "Boa tarde" : "Boa noite";
+  return `${part}, ${name.split(" ")[0]}.`;
+}
 
 function todayLabel() {
   return new Intl.DateTimeFormat("pt-BR", { weekday: "long", day: "numeric", month: "long", timeZone: "America/Sao_Paulo" }).format(new Date());
 }
 
-export default async function HomePage({ searchParams }: { searchParams: Promise<{ view?: string }> }) {
-  const user = await requireUser();
-  const { view } = await searchParams;
-  const collection: ProjectCollection = PROJECT_COLLECTIONS.includes(view as ProjectCollection) ? (view as ProjectCollection) : "all";
+const ENTRY_PATHS = [
+  { href: "/projects/new", icon: <PencilLine />, title: "Criar manualmente", text: "Registre o nascimento de um projeto, etapa por etapa." },
+  { href: "/projects/import", icon: <GithubMark className="size-4" />, title: "Importar do GitHub", text: "Analise um repositório e comece com o contexto já preenchido." },
+  { href: "/pre-projects/new", icon: <ClipboardList />, title: "Pré-projeto", text: "Registre uma demanda antes de assumir o compromisso." },
+];
 
-  const [projects, counts, drafts] = await Promise.all([listProjects(user.id, collection), countProjectsByStatus(user.id), listDrafts(user.id)]);
-  const firstRun = counts.all === 0;
+export default async function CommandCenterPage() {
+  const user = await requireUser();
+  const [cc, inbox] = await Promise.all([loadCommandCenter(user.id), countInbox(user.id)]);
+  const count = (c: Exclude<ProjectCollection, "all">) => cc.projects.filter((p) => COLLECTION_STATUSES[c].includes(p.status)).length;
+  const active = count("active");
+  const moving = cc.projects.filter((p) => COLLECTION_STATUSES.active.includes(p.status)).slice(0, 6);
 
   return (
-    <div className="mx-auto flex w-full max-w-[1240px] flex-col gap-8 px-4 pt-10 pb-24 sm:px-6 sm:pt-14 lg:px-8">
-      <header className="flex flex-wrap items-end justify-between gap-6">
-        <div className="flex flex-col gap-3">
-          <p className="eyebrow first-letter:uppercase">{todayLabel()}</p>
-          <h1 className="flex items-baseline gap-3 text-h1 sm:text-display">
-            Projetos
-            {!firstRun && <span className="font-numeric text-h3 font-normal tracking-normal text-fg-subtle">{counts.all}</span>}
-          </h1>
-          <p className="max-w-xl text-body text-fg-muted">
-            O que existe, por que existe, como nasceu e para onde está indo.
-          </p>
-        </div>
-        <ButtonLink href="/projects/new" variant="primary" leading={<Plus className="stroke-[2.25]" />} className="sm:hidden">
-          Novo projeto
-        </ButtonLink>
-      </header>
+    <div className="mx-auto flex w-full max-w-[1280px] flex-col px-4 pt-12 pb-28 sm:px-6 sm:pt-16 lg:px-8">
+      <Reveal className="flex flex-col gap-5">
+        <p className="eyebrow first-letter:uppercase">{todayLabel()}</p>
+        <h1 className="text-display sm:text-hero">{greeting(user.name)}</h1>
+        {cc.projects.length > 0 && <SummaryLine active={active} attention={cc.attention.length} commits={cc.commits30d} />}
+      </Reveal>
 
-      <DraftList drafts={drafts.map((d) => ({ ...d, updatedAt: d.updatedAt.toISOString() }))} />
-
-      {firstRun ? (
-        <EmptyState
-          icon={<FolderPlus />}
-          title="Nenhum projeto registrado ainda"
-          description="Registre o nascimento do primeiro projeto: o problema, o objetivo, o escopo e tudo o que não pode se perder."
-          action={
-            <ButtonLink href="/projects/new" variant="primary" leading={<Plus className="stroke-[2.25]" />}>
-              Registrar primeiro projeto
-            </ButtonLink>
-          }
-        />
+      {cc.projects.length === 0 ? (
+        <Reveal delay={0.1} className="mt-16 flex flex-col gap-8">
+          <div className="rule-fade" />
+          <div className="flex flex-col gap-2">
+            <h2 className="text-h2">Seu espaço está pronto.</h2>
+            <p className="max-w-[56ch] text-body text-fg-muted">Tudo o que você criar a partir de agora terá contexto, história e memória. Por onde começamos?</p>
+          </div>
+          <ul className="grid gap-px overflow-hidden rounded-xl bg-line sm:grid-cols-3">
+            {ENTRY_PATHS.map((p) => (
+              <li key={p.href} className="bg-canvas">
+                <Link href={p.href} className="group row-hover flex h-full flex-col gap-3 p-6">
+                  <span className="text-accent [&_svg]:size-4">{p.icon}</span>
+                  <span className="font-display text-h4 font-medium text-fg-strong">{p.title}</span>
+                  <span className="text-body-sm text-fg-muted">{p.text}</span>
+                  <ArrowRight className="mt-auto size-4 text-fg-subtle transition-transform duration-200 group-hover:translate-x-1 group-hover:text-accent" aria-hidden />
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </Reveal>
       ) : (
-        <section aria-label="Lista de projetos" className="flex flex-col gap-4">
-          <TabNav
-            id="collections"
-            label="Filtrar projetos"
-            variant="segmented"
-            items={PROJECT_COLLECTIONS.map((c) => ({
-              href: c === "all" ? "/" : `/?view=${c}`,
-              label: PROJECT_COLLECTION_LABELS[c],
-              count: counts[c],
-              active: c === collection,
-            }))}
-          />
-          {projects.length > 0 ? (
-            <ProjectList
-              projects={projects.map((p) => ({
-                ...p,
-                lastActivityAt: p.lastActivityAt.toISOString(),
-                createdAt: p.createdAt.toISOString(),
-                github: p.github?.owner && p.github.name ? { owner: p.github.owner, name: p.github.name } : null,
-              }))}
-            />
-          ) : (
-            <EmptyState compact icon={<SearchX />} title={EMPTY_COLLECTION[collection as Exclude<ProjectCollection, "all">] ?? "Nada por aqui."} description="Os projetos aparecem aqui conforme o status muda." />
-          )}
-        </section>
+        <div className="mt-14 grid gap-x-16 gap-y-14 lg:grid-cols-[minmax(0,1fr)_360px]">
+          <div className="flex min-w-0 flex-col gap-14">
+            <Reveal delay={0.08}>
+              <Section title="O que precisa da sua atenção" id="attention">
+                <AttentionList
+                  items={cc.attention.slice(0, 8)}
+                  empty={
+                    <p className="flex items-center gap-3 text-body text-fg-muted">
+                      <span className="size-1.5 rounded-full bg-success" aria-hidden />
+                      Nada pede sua atenção agora. Todos os sinais estão calmos.
+                    </p>
+                  }
+                />
+              </Section>
+            </Reveal>
+
+            <Reveal delay={0.14}>
+              <Section
+                title="Em movimento"
+                id="moving"
+                action={
+                  <Link href="/projects" className="group flex items-center gap-1.5 text-caption tracking-normal text-fg-muted hover:text-fg-strong">
+                    Todos os projetos
+                    <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-0.5" aria-hidden />
+                  </Link>
+                }
+              >
+                {moving.length ? <ProjectRows items={moving} /> : <p className="text-body-sm text-fg-subtle">Nenhum projeto ativo no momento.</p>}
+              </Section>
+            </Reveal>
+          </div>
+
+          <aside className="flex min-w-0 flex-col gap-12">
+            <Reveal delay={0.1}>
+              <Section title="Universo" id="universe">
+                <dl className="grid grid-cols-3 gap-y-6">
+                  {[
+                    { label: "Ativos", value: active, href: "/projects?view=active" },
+                    { label: "Em pausa", value: count("paused"), href: "/projects?view=paused" },
+                    { label: "Concluídos", value: count("completed"), href: "/projects?view=completed" },
+                    { label: "Pré-projetos", value: cc.pipeline, href: "/pre-projects" },
+                    { label: "Ideias na Inbox", value: inbox, href: "/inbox" },
+                    { label: "Arquivados", value: count("archived"), href: "/projects?view=archived" },
+                  ].map((item) => (
+                    <Link key={item.label} href={item.href} className="group flex flex-col gap-1">
+                      <dd className={`font-numeric font-display text-h1 leading-none font-normal tracking-[-0.03em] transition-colors group-hover:text-accent ${item.value ? "text-fg-strong" : "text-fg-subtle/60"}`}>{item.value}</dd>
+                      <dt className="text-caption tracking-normal text-fg-subtle">{item.label}</dt>
+                    </Link>
+                  ))}
+                </dl>
+              </Section>
+            </Reveal>
+
+            <Reveal delay={0.16}>
+              <Section title="Desenvolvimento · 30 dias" id="dev">
+                <CadenceStrip days={cc.cadence} />
+                <p className="text-caption tracking-normal text-fg-subtle">Commits sincronizados de todos os repositórios. Atividade — não progresso.</p>
+              </Section>
+            </Reveal>
+
+            <Reveal delay={0.2}>
+              <Section title="Próximos milestones" id="milestones">
+                <MilestoneAgenda items={cc.milestones} />
+              </Section>
+            </Reveal>
+
+            <Reveal delay={0.24}>
+              <Section title="Atividade recente" id="recent">
+                <RecentEvents items={cc.events} />
+              </Section>
+            </Reveal>
+          </aside>
+        </div>
       )}
     </div>
   );

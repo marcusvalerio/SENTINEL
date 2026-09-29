@@ -1,7 +1,8 @@
 "use client";
 
 import { AnimatePresence, motion } from "motion/react";
-import { ArrowDownUp, History, MoreHorizontal, PencilLine, Search, Trash2, X } from "lucide-react";
+import { ArrowDownUp, History, MoreHorizontal, PencilLine, Scale, Search, Trash2, X } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useDeferredValue, useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { Dropdown } from "@/components/ui/dropdown";
 import { Input } from "@/components/ui/input";
@@ -13,6 +14,7 @@ import { filterJournal, tagCounts, type JournalFilter } from "@/domain/journal";
 import { NOTE_TYPES, NOTE_TYPE_LABELS, type NoteType } from "@/domain/notes";
 import { cn } from "@/lib/cn";
 import { dayKey, formatDateTime, formatTime } from "@/lib/format";
+import { promoteNoteToDecision } from "@/server/decisions/actions";
 import { deleteNote, getNoteRevisions } from "@/server/notes/actions";
 import { NoteForm } from "./note-composer";
 import { NoteTypeTag } from "./note-meta";
@@ -36,6 +38,17 @@ export function NotesJournal({ projectId, notes }: { projectId: string; notes: J
   const [pending, startTransition] = useTransition();
   const searchRef = useRef<HTMLInputElement>(null);
   const toast = useToast();
+  const router = useRouter();
+
+  const promote = async (note: JournalNote) => {
+    const result = await promoteNoteToDecision(projectId, note.id);
+    if (!result.ok) {
+      toast.show({ tone: "error", title: result.error });
+      return;
+    }
+    toast.show({ title: "Decisão criada", description: "Complete as alternativas e o impacto quando quiser." });
+    router.push(`/projects/${projectId}/decisoes#decision-${result.decisionId}`);
+  };
 
   // "/" focuses the journal search — keyboard-first like the rest of SENTINEL.
   useEffect(() => {
@@ -225,6 +238,7 @@ export function NotesJournal({ projectId, notes }: { projectId: string; notes: J
                                 items={[
                                   { label: "Editar", icon: <PencilLine />, onSelect: () => setEditing(note.id) },
                                   { label: "Histórico de edições", icon: <History />, onSelect: () => openHistory(note) },
+                                  ...(note.type === "decision" ? [{ label: "Transformar em decisão", icon: <Scale />, onSelect: () => void promote(note) }] : []),
                                   { label: "Excluir", icon: <Trash2 />, tone: "danger", onSelect: () => setDeleting(note) },
                                 ]}
                               />

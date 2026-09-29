@@ -33,7 +33,7 @@ export function DocField({ label, value, emphasis = false, fallback = "Não regi
       {empty ? (
         <p className="text-body-sm text-fg-subtle italic">{fallback}</p>
       ) : typeof value === "string" ? (
-        <p className={cn("max-w-[72ch] whitespace-pre-line", emphasis ? "font-display text-h3 leading-snug font-normal text-fg-strong" : "text-body text-fg")}>{value}</p>
+        <p className={cn("max-w-[72ch] whitespace-pre-line", emphasis ? "font-display text-h3 leading-snug font-normal text-fg-strong" : "prose-reading")}>{value}</p>
       ) : (
         value
       )}

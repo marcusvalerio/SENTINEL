@@ -8,6 +8,7 @@ import {
   index,
   integer,
   jsonb,
+  numeric,
   pgEnum,
   pgTable,
   text,
@@ -29,6 +30,12 @@ import { TIMELINE_EVENT_TYPES, TIMELINE_ORIGINS, TIMELINE_SOURCES } from "@/doma
 import { MILESTONE_STATUSES } from "@/domain/milestones";
 import { TOOL_CATEGORIES } from "@/domain/tools";
 import { GITHUB_ACTIVITY_KINDS, SYNC_STATUSES, type BranchSnapshot, type ContributorSnapshot } from "@/domain/github-activity";
+import { EFFORTS, HORIZONS, ITEM_ORIGINS } from "@/domain/roadmap";
+import { DECISION_STATUSES } from "@/domain/decisions";
+import { IDEA_STATUSES } from "@/domain/ideas";
+import { PRE_PROJECT_STATUSES } from "@/domain/pre-projects";
+import { BILLING_PERIODS, SUBSCRIPTION_STATUSES } from "@/domain/subscriptions";
+import type { StackItem } from "@/domain/stack";
 
 /* -------------------------------------------------------------------------- */
 /* Enums                                                                       */
@@ -50,6 +57,15 @@ export const milestoneStatus = pgEnum("milestone_status", MILESTONE_STATUSES);
 export const toolCategory = pgEnum("tool_category", TOOL_CATEGORIES);
 export const githubActivityKind = pgEnum("github_activity_kind", GITHUB_ACTIVITY_KINDS);
 export const syncStatus = pgEnum("sync_status", SYNC_STATUSES);
+export const roadmapHorizon = pgEnum("roadmap_horizon", HORIZONS);
+export const effortSize = pgEnum("effort_size", EFFORTS);
+export const itemOrigin = pgEnum("item_origin", ITEM_ORIGINS);
+export const decisionStatus = pgEnum("decision_status", DECISION_STATUSES);
+export const ideaStatus = pgEnum("idea_status", IDEA_STATUSES);
+export const preProjectStatus = pgEnum("pre_project_status", PRE_PROJECT_STATUSES);
+export const billingPeriod = pgEnum("billing_period", BILLING_PERIODS);
+export const subscriptionStatus = pgEnum("subscription_status", SUBSCRIPTION_STATUSES);
+export const projectSource = pgEnum("project_source", ["manual", "github_import", "pre_project"]);
 
 const timestamps = {
   createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
@@ -151,6 +167,12 @@ export const projects = pgTable(
     // 06 — Observations
     observations: text(),
 
+    // Identity (Project DNA)
+    currentFocus: text(),
+    source: projectSource().notNull().default("manual"),
+    stack: jsonb().$type<StackItem[]>().notNull().default(sql`'[]'::jsonb`),
+    importAnalysis: jsonb().$type<Record<string, unknown>>(),
+
     // Progress. GitHub activity is tracked separately and never drives this.
     progress: integer().notNull().default(0),
     progressSource: progressSource().notNull().default("features"),
@@ -179,6 +201,11 @@ export const projectFinances = pgTable("project_finances", {
   expectedRevenueCents: cents(),
   recurringRevenueCents: cents(),
   contractedValueCents: cents(),
+  estimatedCostCents: cents(),
+  actualCostCents: cents(),
+  revenueCents: cents(),
+  /** Months of AI-base subscriptions counted as project cost; null = not applied. */
+  aiBaseMonths: integer(),
   monetizationModel: text(),
   ...timestamps,
 });
@@ -195,6 +222,10 @@ export const projectFeatures = pgTable(
     priority: featurePriority().notNull().default("important"),
     status: featureStatus().notNull().default("planned"),
     milestoneId: uuid().references((): AnyPgColumn => projectMilestones.id, { onDelete: "set null" }),
+    horizon: roadmapHorizon().notNull().default("next"),
+    effort: effortSize(),
+    origin: itemOrigin().notNull().default("scope"),
+    dependsOn: uuid().array().notNull().default(sql`'{}'::uuid[]`),
     position: integer().notNull().default(0),
     completedAt: timestamp({ withTimezone: true }),
     ...timestamps,
@@ -426,6 +457,167 @@ export const projectDrafts = pgTable(
   (t) => [index("project_drafts_owner_updated_idx").on(t.ownerId, t.updatedAt)],
 );
 
+/* -------------------------------------------------------------------------- */
+/* Phase 3 — discovery, decisions, subscriptions, foundations                   */
+/* -------------------------------------------------------------------------- */
+
+/** Structured decisions (ADR-like). Rubrica notes of type "decision" can be promoted to one. */
+export const projectDecisions = pgTable(
+  "project_decisions",
+  {
+    id: uuid().primaryKey().defaultRandom(),
+    projectId: uuid()
+      .notNull()
+      .references(() => projects.id, { onDelete: "cascade" }),
+    title: text().notNull(),
+    context: text(),
+    problem: text(),
+    alternatives: text(),
+    decision: text(),
+    impact: text(),
+    status: decisionStatus().notNull().default("proposed"),
+    decidedOn: date({ mode: "string" }),
+    noteId: uuid().references(() => projectNotes.id, { onDelete: "set null" }),
+    createdById: uuid().references(() => users.id, { onDelete: "set null" }),
+    ...timestamps,
+  },
+  (t) => [index("project_decisions_project_idx").on(t.projectId, t.createdAt)],
+);
+
+/** Global idea inbox: one line of text, converted into something real later. */
+export const ideas = pgTable(
+  "ideas",
+  {
+    id: uuid().primaryKey().defaultRandom(),
+    ownerId: uuid()
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    text: text().notNull(),
+    projectId: uuid().references(() => projects.id, { onDelete: "set null" }),
+    status: ideaStatus().notNull().default("inbox"),
+    convertedKind: text(),
+    convertedId: uuid(),
+    ...timestamps,
+  },
+  (t) => [index("ideas_owner_status_idx").on(t.ownerId, t.status, t.createdAt)],
+);
+
+/** Demand before commitment: a request that may or may not become a project. */
+export const preProjects = pgTable(
+  "pre_projects",
+  {
+    id: uuid().primaryKey().defaultRandom(),
+    ownerId: uuid()
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    title: text().notNull(),
+    status: preProjectStatus().notNull().default("new"),
+    requesterName: text(),
+    requesterOrg: text(),
+    requesterContact: text(),
+    idea: text(),
+    problem: text(),
+    goal: text(),
+    audience: text(),
+    users: text(),
+    currentProcess: text(),
+    features: text(),
+    initialScope: text(),
+    futureFeatures: text(),
+    integrations: text(),
+    references: text(),
+    platform: text(),
+    deadline: text(),
+    budget: text(),
+    constraints: text(),
+    observations: text(),
+    statusChangedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    convertedProjectId: uuid().references(() => projects.id, { onDelete: "set null" }),
+    ...timestamps,
+  },
+  (t) => [index("pre_projects_owner_status_idx").on(t.ownerId, t.status, t.updatedAt)],
+);
+
+export const subscriptions = pgTable(
+  "subscriptions",
+  {
+    id: uuid().primaryKey().defaultRandom(),
+    ownerId: uuid()
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    service: text().notNull(),
+    plan: text(),
+    billing: billingPeriod().notNull().default("monthly"),
+    amountCents: cents(),
+    currency: text().notNull().default("BRL"),
+    renewsOn: date({ mode: "string" }),
+    category: toolCategory(),
+    usage: text(),
+    status: subscriptionStatus().notNull().default("active"),
+    /** Counts toward the AI base cost of projects (Claude, ChatGPT). */
+    isAiBase: boolean().notNull().default(false),
+    ...timestamps,
+  },
+  (t) => [index("subscriptions_owner_idx").on(t.ownerId, t.status)],
+);
+
+export const subscriptionProjects = pgTable(
+  "subscription_projects",
+  {
+    subscriptionId: uuid()
+      .notNull()
+      .references(() => subscriptions.id, { onDelete: "cascade" }),
+    projectId: uuid()
+      .notNull()
+      .references(() => projects.id, { onDelete: "cascade" }),
+    createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [uniqueIndex("subscription_projects_unique").on(t.subscriptionId, t.projectId), index("subscription_projects_project_idx").on(t.projectId)],
+);
+
+/**
+ * Foundation for product metrics (MRR, churn, activation…). Opt-in per
+ * project: a metric only exists once someone records a value for it.
+ */
+export const projectMetricValues = pgTable(
+  "project_metric_values",
+  {
+    id: uuid().primaryKey().defaultRandom(),
+    projectId: uuid()
+      .notNull()
+      .references(() => projects.id, { onDelete: "cascade" }),
+    metric: text().notNull(),
+    periodStart: date({ mode: "string" }).notNull(),
+    value: numeric({ precision: 18, scale: 4 }).notNull(),
+    note: text(),
+    createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [uniqueIndex("project_metric_values_unique").on(t.projectId, t.metric, t.periodStart)],
+);
+
+/** Foundation for product experiments (hypothesis → result → learning → decision). */
+export const projectExperiments = pgTable(
+  "project_experiments",
+  {
+    id: uuid().primaryKey().defaultRandom(),
+    projectId: uuid()
+      .notNull()
+      .references(() => projects.id, { onDelete: "cascade" }),
+    hypothesis: text().notNull(),
+    variantA: text(),
+    variantB: text(),
+    metric: text(),
+    result: text(),
+    learning: text(),
+    decisionId: uuid().references(() => projectDecisions.id, { onDelete: "set null" }),
+    status: text().notNull().default("planned"),
+    startedOn: date({ mode: "string" }),
+    endedOn: date({ mode: "string" }),
+    ...timestamps,
+  },
+  (t) => [index("project_experiments_project_idx").on(t.projectId)],
+);
+
 export type User = typeof users.$inferSelect;
 export type Project = typeof projects.$inferSelect;
 export type ProjectFinance = typeof projectFinances.$inferSelect;
@@ -440,3 +632,7 @@ export type ProjectDraft = typeof projectDrafts.$inferSelect;
 export type ProjectMilestone = typeof projectMilestones.$inferSelect;
 export type GithubActivity = typeof githubActivity.$inferSelect;
 export type ProjectNoteRevision = typeof projectNoteRevisions.$inferSelect;
+export type ProjectDecision = typeof projectDecisions.$inferSelect;
+export type Idea = typeof ideas.$inferSelect;
+export type PreProject = typeof preProjects.$inferSelect;
+export type Subscription = typeof subscriptions.$inferSelect;
