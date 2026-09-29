@@ -10,6 +10,9 @@ export type RepositoryMetadata = {
   isPrivate: boolean;
   description: string | null;
   pushedAt: string | null;
+  createdAt: string | null;
+  topics: string[];
+  homepage: string | null;
 };
 
 export type LookupResult =
@@ -74,6 +77,22 @@ export function createGithubClient({ fetchImpl = fetch, token = process.env.GITH
     throw new GithubError("unavailable", GITHUB_ERROR_MESSAGES.unavailable);
   }
 
+  /** Raw file content (README, package.json). Missing files are simply null. */
+  async function raw(path: string): Promise<string | null> {
+    try {
+      const response = await fetchImpl(`https://api.github.com${path}`, {
+        headers: { Accept: "application/vnd.github.raw", "X-GitHub-Api-Version": "2022-11-28", "User-Agent": "sentinel-app", ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+        signal: AbortSignal.timeout(10_000),
+        cache: "no-store",
+      });
+      if (!response.ok) return null;
+      const text = await response.text();
+      return text.slice(0, 60_000);
+    } catch {
+      return null;
+    }
+  }
+
   /** Same as request, but an empty repository (409) or missing list is just "nothing". */
   async function list(path: string): Promise<Record<string, unknown>[]> {
     try {
@@ -104,6 +123,33 @@ export function createGithubClient({ fetchImpl = fetch, token = process.env.GITH
       return Array.isArray(data) ? data.map((r) => toMetadata(r as Record<string, unknown>)) : [];
     },
 
+    /** Everything the import analysis reads, in parallel. Read-only, bounded in size. */
+    async fetchSnapshot(ref: RepositoryRef) {
+      const base = repo(ref);
+      const meta = await this.getRepository(ref);
+      const [readme, packageJson, tree, languages, commits, branches] = await Promise.all([
+        raw(`${base}/readme`),
+        raw(`${base}/contents/package.json`),
+        request<{ tree?: { path: string; type: string }[]; truncated?: boolean }>(`${base}/git/trees/${encodeURIComponent(meta.defaultBranch)}?recursive=1`).catch(() => ({ tree: [] as { path: string; type: string }[], truncated: false })),
+        request<Record<string, number>>(`${base}/languages`).catch(() => ({})),
+        list(`${base}/commits?per_page=30`),
+        list(`${base}/branches?per_page=100`),
+      ]);
+      return {
+        meta,
+        readme,
+        packageJson,
+        paths: (tree.tree ?? []).filter((t) => t.type === "blob").map((t) => t.path).slice(0, 20_000),
+        truncated: Boolean(tree.truncated),
+        languages,
+        commits: commits.map((c) => {
+          const commit = (c.commit ?? {}) as { message?: string; author?: { date?: string; name?: string } };
+          return { message: String(commit.message ?? "").split("\n")[0] ?? "", date: String(commit.author?.date ?? ""), author: commit.author?.name ?? null };
+        }),
+        branches: branches.map((b) => String(b.name ?? "")).filter(Boolean),
+      };
+    },
+
     async fetchActivity(ref: RepositoryRef) {
       const base = repo(ref);
       const [commits, pulls, issues, releases, branches, contributors] = await Promise.all([
@@ -130,6 +176,9 @@ function toMetadata(data: Record<string, unknown>): RepositoryMetadata {
     isPrivate: Boolean(data.private),
     description: typeof data.description === "string" ? data.description : null,
     pushedAt: typeof data.pushed_at === "string" ? data.pushed_at : null,
+    createdAt: typeof data.created_at === "string" ? data.created_at : null,
+    topics: Array.isArray(data.topics) ? data.topics.filter((t): t is string => typeof t === "string") : [],
+    homepage: typeof data.homepage === "string" && data.homepage ? data.homepage : null,
   };
 }
 

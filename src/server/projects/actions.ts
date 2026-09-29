@@ -32,6 +32,7 @@ import {
   projectFinances,
   projectMembers,
   projectReferences,
+  projectTools,
   projects,
 } from "@/server/db/schema";
 import {
@@ -232,6 +233,19 @@ export async function createProject(input: {
         metadata: { status: data.status, features: data.features.length, origin: origin?.kind ?? "manual" },
         createdById: user.id,
       });
+      if (origin?.kind === "github_import" && Array.isArray(origin.analysis.tools)) {
+        const tools = (origin.analysis.tools as { name?: unknown; purpose?: unknown; category?: unknown }[])
+          .filter((t) => typeof t.name === "string" && t.name.length <= 80)
+          .slice(0, 12)
+          .map((t) => ({
+            projectId: id,
+            name: String(t.name),
+            purpose: typeof t.purpose === "string" ? t.purpose.slice(0, 300) : null,
+            category: t.category === "infrastructure" ? ("infrastructure" as const) : ("development" as const),
+            notes: "Registrada na importação do GitHub.",
+          }));
+        if (tools.length) await tx.insert(projectTools).values(tools).onConflictDoNothing();
+      }
       if (origin?.kind === "pre_project") {
         await tx.update(preProjects).set({ convertedProjectId: id, status: "approved" }).where(and(eq(preProjects.id, origin.preProjectId), eq(preProjects.ownerId, user.id)));
       }
