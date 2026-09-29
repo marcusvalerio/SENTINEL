@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
+import { BrandLoop } from "@/components/brand/brand-loop";
 import { LogoMark } from "@/components/brand/logo";
+import { LOGIN_LOOP } from "@/lib/brand-media";
 import { getCurrentUser } from "@/server/auth/session";
 import { LoginForm } from "./login-form";
 
@@ -17,7 +19,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
 
   return (
     <main id="main" className="relative flex min-h-dvh flex-col overflow-hidden">
-      <Aperture />
+      <BrandLoop media={LOGIN_LOOP} fallback={<Aperture />} />
       <div className="relative z-10 flex flex-1 items-center justify-center px-4 py-16">
         <div className="w-full max-w-[380px]">
           <div className="mb-10 flex flex-col items-center gap-5 text-center">
@@ -41,7 +43,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
 /** Concentric instrument rings behind the form — the SENTINEL aperture. */
 function Aperture() {
   return (
-    <div className="pointer-events-none absolute inset-0 flex items-center justify-center" aria-hidden>
+    <div className="absolute inset-0 flex items-center justify-center">
       <div className="absolute inset-0 bg-grid [mask-image:radial-gradient(ellipse_at_center,black_10%,transparent_65%)]" />
       <div className="absolute size-[1100px] rounded-full bg-[radial-gradient(circle,rgb(27_41_75/0.55),transparent_60%)]" />
       <svg viewBox="0 0 800 800" className="absolute size-[800px] max-w-none opacity-90">
