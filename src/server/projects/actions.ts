@@ -1,6 +1,6 @@
 "use server";
 
-import { and, eq, notInArray } from "drizzle-orm";
+import { and, eq, notInArray, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import {
@@ -20,9 +20,13 @@ import {
   type ProjectStatus,
 } from "@/domain/project";
 import type { TimelineEventType } from "@/domain/timeline";
+import type { StackItem } from "@/domain/stack";
+import type { ItemOrigin } from "@/domain/roadmap";
 import { requireUser } from "@/server/auth/session";
+import { connectRepositoryForProject } from "@/server/github/connect";
 import { db, type Transaction } from "@/server/db/client";
 import {
+  preProjects,
   projectDrafts,
   projectFeatures,
   projectFinances,
@@ -63,7 +67,8 @@ export async function saveDraft(input: {
     if (input.draftId && isUuid(input.draftId)) {
       const [updated] = await db
         .update(projectDrafts)
-        .set({ data: values, currentStep: step, title })
+        // Keep the draft's origin (import / pre-project) across autosaves.
+        .set({ data: sql`${JSON.stringify(values)}::jsonb || jsonb_build_object('__origin', ${projectDrafts.data} -> '__origin')`, currentStep: step, title })
         .where(and(eq(projectDrafts.id, input.draftId), eq(projectDrafts.ownerId, user.id)))
         .returning({ id: projectDrafts.id, updatedAt: projectDrafts.updatedAt });
       if (updated) return { ok: true, draftId: updated.id, savedAt: updated.updatedAt.toISOString() };
@@ -157,20 +162,42 @@ async function upsertLead(tx: Transaction, projectId: string, leadName: string |
   }
 }
 
+/** Where a new project came from. Carried from the entry flow into the record. */
+export type ProjectOrigin =
+  | { kind: "pre_project"; preProjectId: string }
+  | { kind: "github_import"; repository: string; stack: StackItem[]; analysis: Record<string, unknown> };
+
 export async function createProject(input: {
   values: ProjectFormValues;
   draftId: string | null;
-}): Promise<ActionResult<{ projectId: string }>> {
+  origin?: ProjectOrigin | null;
+}): Promise<ActionResult<{ projectId: string; githubSynced?: boolean }>> {
   const user = await requireUser();
   const result = validate(input.values);
   if (!result.ok) return result;
   const data = result.data;
+  const origin = input.origin ?? null;
+  if (origin?.kind === "pre_project") {
+    const pre = isUuid(origin.preProjectId)
+      ? await db.select({ id: preProjects.id }).from(preProjects).where(and(eq(preProjects.id, origin.preProjectId), eq(preProjects.ownerId, user.id)))
+      : [];
+    if (pre.length === 0) return { ok: false, error: "Pré-projeto de origem não encontrado." };
+  }
+  const featureOrigin: ItemOrigin = origin?.kind === "github_import" ? "github_import" : origin?.kind === "pre_project" ? "pre_project" : "scope";
 
   try {
     const projectId = await db.transaction(async (tx) => {
       const [project] = await tx
         .insert(projects)
-        .values({ ownerId: user.id, ...projectColumns(data), progressSource: "features", progress: 0 })
+        .values({
+          ownerId: user.id,
+          ...projectColumns(data),
+          progressSource: "features",
+          progress: 0,
+          source: origin?.kind ?? "manual",
+          stack: origin?.kind === "github_import" ? origin.stack.slice(0, 80) : [],
+          importAnalysis: origin?.kind === "github_import" ? origin.analysis : null,
+        })
         .returning({ id: projects.id });
       const id = project!.id;
 
@@ -183,6 +210,7 @@ export async function createProject(input: {
             name: f.name,
             description: f.description,
             priority: f.priority,
+            origin: featureOrigin,
             position,
           })),
         );
@@ -194,14 +222,19 @@ export async function createProject(input: {
       }
       await upsertLead(tx, id, data.leadName);
 
+      const originText =
+        origin?.kind === "github_import" ? ` Importado de ${origin.repository}.` : origin?.kind === "pre_project" ? " Convertido de um pré-projeto aprovado." : "";
       await logEvent(tx, {
         projectId: id,
         type: "created",
         title: "Projeto registrado no SENTINEL",
-        description: `Registrado com status “${PROJECT_STATUS_LABELS[data.status]}”.`,
-        metadata: { status: data.status, features: data.features.length },
+        description: `Registrado com status “${PROJECT_STATUS_LABELS[data.status]}”.${originText}`,
+        metadata: { status: data.status, features: data.features.length, origin: origin?.kind ?? "manual" },
         createdById: user.id,
       });
+      if (origin?.kind === "pre_project") {
+        await tx.update(preProjects).set({ convertedProjectId: id, status: "approved" }).where(and(eq(preProjects.id, origin.preProjectId), eq(preProjects.ownerId, user.id)));
+      }
 
       if (input.draftId && isUuid(input.draftId)) {
         await tx.delete(projectDrafts).where(and(eq(projectDrafts.id, input.draftId), eq(projectDrafts.ownerId, user.id)));
@@ -209,8 +242,15 @@ export async function createProject(input: {
       return id;
     });
 
+    // Imported projects arrive connected and synced — the repository is part of their birth.
+    let githubSynced: boolean | undefined;
+    if (origin?.kind === "github_import") {
+      const connected = await connectRepositoryForProject(user.id, projectId, origin.repository);
+      githubSynced = connected.ok && connected.synced;
+    }
+
     revalidatePath("/", "layout");
-    return { ok: true, projectId };
+    return { ok: true, projectId, githubSynced };
   } catch (error) {
     console.error("[projects] create failed", error instanceof Error ? error.message : error);
     return { ok: false, error: GENERIC_ERROR };

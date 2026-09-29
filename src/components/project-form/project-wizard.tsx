@@ -26,7 +26,7 @@ import {
 import { cn } from "@/lib/cn";
 import { formatRelative, formatTime } from "@/lib/format";
 import { useIsMac } from "@/lib/use-platform";
-import { createProject, deleteDraft, updateProject } from "@/server/projects/actions";
+import { createProject, deleteDraft, updateProject, type ProjectOrigin } from "@/server/projects/actions";
 import { BusinessStep } from "./steps/business-step";
 import { ContextStep } from "./steps/context-step";
 import { DesignStep } from "./steps/design-step";
@@ -38,7 +38,7 @@ import type { SetField } from "./types";
 import { LOCAL_KEY_NEW, clearLocalBackups, hasMeaningfulContent, readLocalBackup, useAutosave, type LocalBackup, type SaveState } from "./use-autosave";
 
 type WizardProps =
-  | { mode: "create"; initialValues: ProjectFormValues; draftId: string | null; initialStep: number; savedAt: string | null }
+  | { mode: "create"; initialValues: ProjectFormValues; draftId: string | null; initialStep: number; savedAt: string | null; origin?: ProjectOrigin | null }
   | { mode: "edit"; initialValues: ProjectFormValues; projectId: string; initialStep?: number };
 
 const TOTAL = FORM_STEPS.length;
@@ -140,7 +140,7 @@ export function ProjectWizard(props: WizardProps) {
     startSubmit(async () => {
       if (mode === "create") {
         autosave.cancel();
-        const result = await createProject({ values, draftId: autosave.draftId.current });
+        const result = await createProject({ values, draftId: autosave.draftId.current, origin: props.origin ?? null });
         if (result.ok) {
           clearLocalBackups(autosave.draftId.current);
           setCreated(values.name.trim());
@@ -270,6 +270,7 @@ export function ProjectWizard(props: WizardProps) {
         {/* Rail */}
         <aside className="sticky top-14 hidden h-[calc(100dvh-3.5rem)] w-[300px] shrink-0 flex-col gap-8 overflow-y-auto border-r border-line px-7 py-8 lg:flex">
           <IdentityPreview values={values} />
+          {mode === "create" && props.origin && <OriginNote origin={props.origin} />}
           <Stepper
             steps={STEPS}
             current={step}
@@ -476,6 +477,25 @@ function SaveIndicator({ state }: { state: SaveState }) {
           {content[state.status]}
         </motion.span>
       </AnimatePresence>
+    </div>
+  );
+}
+
+/** Shows where this registration came from, so prefilled answers are never mistaken for the person's own. */
+function OriginNote({ origin }: { origin: ProjectOrigin }) {
+  return (
+    <div className="-mt-4 flex flex-col gap-1.5 border-l-2 border-accent/40 pl-3 text-caption tracking-normal text-fg-muted">
+      {origin.kind === "github_import" ? (
+        <>
+          <span className="text-fg">Importado de <span className="font-mono">{origin.repository}</span></span>
+          <span>Campos pré-preenchidos a partir do repositório. Revise antes de criar — o repositório será conectado e sincronizado.</span>
+        </>
+      ) : (
+        <>
+          <span className="text-fg">Convertido de um pré-projeto</span>
+          <span>As respostas da descoberta foram trazidas. Complete tipo e objetivo principal.</span>
+        </>
+      )}
     </div>
   );
 }
