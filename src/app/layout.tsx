@@ -1,10 +1,12 @@
 import type { Metadata, Viewport } from "next";
-import { DM_Sans, Inter, JetBrains_Mono } from "next/font/google";
+import { DM_Sans, Inter, JetBrains_Mono, Roboto } from "next/font/google";
+import { MotionProvider } from "@/components/motion/motion-provider";
 import { ToastProvider } from "@/components/ui/toast";
 import "./globals.css";
 
 const dmSans = DM_Sans({ subsets: ["latin"], variable: "--font-dm-sans", display: "swap", weight: ["400", "500", "600"] });
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
+const roboto = Roboto({ subsets: ["latin"], variable: "--font-roboto", display: "swap", weight: ["400", "500"] });
 const mono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-jetbrains-mono", display: "swap", weight: ["400", "500"] });
 
 export const metadata: Metadata = {
@@ -20,7 +22,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="pt-BR" className={`${dmSans.variable} ${inter.variable} ${mono.variable}`}>
+    <html lang="pt-BR" className={`${dmSans.variable} ${inter.variable} ${roboto.variable} ${mono.variable}`}>
       <body>
         <a
           href="#main"
@@ -28,7 +30,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         >
           Pular para o conteúdo
         </a>
-        <ToastProvider>{children}</ToastProvider>
+        <MotionProvider>
+          <ToastProvider>{children}</ToastProvider>
+        </MotionProvider>
       </body>
     </html>
   );
