@@ -96,7 +96,7 @@ export default async function ProjectLayout({ children, params }: { children: Re
             />
           </section>
 
-          <ProjectSectionNav projectId={project.id} counts={{ rubrica: counts.notes, escopo: counts.features, roadmap: countedMilestones.length, ferramentas: counts.tools }} />
+          <ProjectSectionNav projectId={project.id} counts={{ rubrica: counts.notes, escopo: counts.features, roadmap: countedMilestones.length, decisoes: counts.decisions, ferramentas: counts.tools }} />
         </div>
       </div>
 
