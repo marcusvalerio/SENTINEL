@@ -15,7 +15,7 @@ Direção audiovisual do SENTINEL. O Higgsfield é a ferramenta de produção; e
 3. **Um gesto por plano.** Um movimento de câmera *ou* um movimento de elementos, nunca os dois ao mesmo tempo.
 4. **Arquitetura, não ficção científica.** Planos, linhas, volumes, luz rasante. Nada de hologramas, HUDs, neon, partículas, glitch ou "rede neural".
 5. **Espaço negativo é o protagonista.** O assunto ocupa no máximo 30% do quadro, e o resto é sombra com textura.
-6. **A marca não é gerada.** Logotipo, tipografia e textos nunca saem do modelo de vídeo. São compostos depois, a partir do SVG e das fontes reais (ver §7).
+6. **A marca não é gerada.** Logotipo, tipografia e textos nunca saem do modelo de vídeo. São compostos depois, a partir do SVG e das fontes reais (ver §8).
 7. **Pertence à interface.** Mesma paleta, mesmo ritmo, mesma curva de movimento. Ao cortar do filme para o app, nada deve "trocar de mundo".
 
 ## 2. Sistema visual compartilhado com a interface
@@ -176,7 +176,25 @@ Um plano só entra se passar em todos os itens:
 - [ ] Sem texto ou logotipo gerado pelo modelo.
 - [ ] O loop fecha sem costura.
 
-## 7. Marca na pós-produção
+## 7. Ferramentas: o que cada uma faz
+
+**HyperFrames** (HeyGen) é *motion design programático*: HTML, CSS e uma timeline GSAP renderizados quadro a quadro para MP4, WebM, MOV ou GIF. Não é um modelo generativo.
+
+| Necessidade | HyperFrames | Higgsfield |
+| --- | --- | --- |
+| Camada geométrica do filme (fragmentos, grade, linhas, anéis, arco dourado) | ✅ Feita: `hyperframes/convergencia.mjs` | — |
+| Fechamento com a marca real (SVG e DM Sans) | ✅ Feito, com a marca composta a partir dos arquivos reais | Não deve gerar marca (§1.6) |
+| Versões 16:9, 9:16 e loop sem costura | ✅ Feitas | — |
+| Materiais fotográficos (pedra, vidro fosco, luz rasante, profundidade de campo) | ❌ | ✅ Continua dependendo dele |
+| Gerar imagens ou vídeos a partir de prompt | ❌ Só com conta HeyGen logada, FLUX local (Apple Silicon) ou LTX local (GPU) | ✅ |
+| Trilha e efeitos sonoros | Com conta HeyGen (etapa "enhance") | — |
+
+- O conector hospedado (`compose` e `render_video`) recusa chamadas do Claude Code. Funciona pelo Claude.ai web/desktop.
+- O caminho local (CLI `hyperframes`, open source) funciona com Node e FFmpeg.
+
+**Combinação recomendada:** o Higgsfield entrega os planos fotográficos, e o HyperFrames compõe a estrutura, as linhas e a marca por cima (ou os substitui na versão geométrica).
+
+## 8. Marca na pós-produção
 
 - Use `LogoMark` e o wordmark exportados do SVG do app (`src/components/brand/logo.tsx`): anel externo a 28% de opacidade, arco `#B59E5F`, anel interno, ponto `#D7C485`.
 - Wordmark em DM Sans semibold, tracking 0,28em, cor `#ECE8EE`.
