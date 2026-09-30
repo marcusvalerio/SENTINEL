@@ -7,6 +7,7 @@ import { createPortal } from "react-dom";
 import { Kbd } from "@/components/ui/badge";
 import { Spinner } from "@/components/ui/spinner";
 import { useToast } from "@/components/ui/toast";
+import { useDialogFocus } from "@/components/ui/use-dialog-focus";
 import { captureIdea } from "@/server/ideas/actions";
 
 /**
@@ -17,7 +18,8 @@ export function QuickCapture({ open, onClose, project }: { open: boolean; onClos
   const [text, setText] = useState("");
   const [attach, setAttach] = useState(true);
   const [pending, startTransition] = useTransition();
-  const inputRef = useRef<HTMLInputElement>(null);
+  const panelRef = useRef<HTMLFormElement>(null);
+  useDialogFocus(panelRef, open, onClose);
   const toast = useToast();
 
   useEffect(() => {
@@ -25,7 +27,6 @@ export function QuickCapture({ open, onClose, project }: { open: boolean; onClos
     const frame = requestAnimationFrame(() => {
       setText("");
       setAttach(true);
-      inputRef.current?.focus();
     });
     return () => cancelAnimationFrame(frame);
   }, [open]);
@@ -50,6 +51,8 @@ export function QuickCapture({ open, onClose, project }: { open: boolean; onClos
         <div className="fixed inset-0 z-[var(--z-modal)] flex items-start justify-center px-3 pt-[18vh]">
           <motion.div className="absolute inset-0 bg-[rgb(10_11_14/0.6)]" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} aria-hidden />
           <motion.form
+            ref={panelRef}
+            tabIndex={-1}
             role="dialog"
             aria-modal="true"
             aria-label="Capturar ideia"
@@ -57,17 +60,15 @@ export function QuickCapture({ open, onClose, project }: { open: boolean; onClos
               e.preventDefault();
               save();
             }}
-            onKeyDown={(e) => e.key === "Escape" && onClose()}
             initial={{ opacity: 0, y: -10, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -6, scale: 0.99, transition: { duration: 0.12 } }}
             transition={{ type: "spring", stiffness: 520, damping: 40 }}
-            className="relative w-full max-w-xl overflow-hidden rounded-xl bg-surface shadow-overlay"
+            className="relative w-full max-w-xl overflow-hidden rounded-xl bg-surface shadow-overlay outline-none"
           >
             <div className="flex items-center gap-3 px-4">
               <Lightbulb className="size-4 shrink-0 text-accent" aria-hidden />
               <input
-                ref={inputRef}
                 value={text}
                 onChange={(e) => setText(e.target.value)}
                 maxLength={500}

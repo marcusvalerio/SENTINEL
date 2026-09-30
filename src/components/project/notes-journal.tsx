@@ -18,6 +18,8 @@ import { promoteNoteToDecision } from "@/server/decisions/actions";
 import { deleteNote, getNoteRevisions } from "@/server/notes/actions";
 import { NoteForm } from "./note-composer";
 import { NoteTypeTag } from "./note-meta";
+import { isDialogOpen } from "@/components/ui/use-dialog-focus";
+import { isTypingTarget } from "@/lib/keyboard";
 
 export type JournalNote = { id: string; title: string; content: string; type: NoteType; tags: string[]; createdAt: string; updatedAt: string };
 type Revision = { id: string; title: string; content: string; type: NoteType; tags: string[]; createdAt: string };
@@ -53,8 +55,7 @@ export function NotesJournal({ projectId, notes }: { projectId: string; notes: J
   // "/" focuses the journal search — keyboard-first like the rest of SENTINEL.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      const t = e.target as HTMLElement;
-      if (e.key === "/" && !["INPUT", "TEXTAREA"].includes(t.tagName) && !t.isContentEditable) {
+      if (e.key === "/" && !isTypingTarget(e.target) && !isDialogOpen() && !e.metaKey && !e.ctrlKey && !e.altKey) {
         e.preventDefault();
         searchRef.current?.focus();
       }

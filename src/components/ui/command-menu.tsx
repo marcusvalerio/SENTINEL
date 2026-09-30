@@ -7,6 +7,7 @@ import { createPortal } from "react-dom";
 import { cn } from "@/lib/cn";
 import { Kbd } from "./badge";
 import { Spinner } from "./spinner";
+import { useDialogFocus } from "./use-dialog-focus";
 
 export type CommandItem = {
   id: string;
@@ -52,6 +53,8 @@ export function CommandMenu({
   const [active, setActive] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+  useDialogFocus(panelRef, open, onClose);
   const listId = useId();
 
   const groups = useMemo(() => {
@@ -71,13 +74,8 @@ export function CommandMenu({
       setQuery("");
       setActive(0);
       onQueryChange?.("");
-      inputRef.current?.focus();
     });
-    const previous = document.activeElement as HTMLElement | null;
-    return () => {
-      cancelAnimationFrame(frame);
-      previous?.focus?.();
-    };
+    return () => cancelAnimationFrame(frame);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
@@ -101,9 +99,6 @@ export function CommandMenu({
     } else if (event.key === "Enter") {
       event.preventDefault();
       run(flat[Math.min(active, flat.length - 1)]);
-    } else if (event.key === "Escape") {
-      event.preventDefault();
-      onClose();
     }
   };
 
@@ -117,14 +112,17 @@ export function CommandMenu({
         <div className="fixed inset-0 z-[var(--z-modal)] flex items-start justify-center px-3 pt-[8vh] sm:px-4 sm:pt-[12vh]">
           <motion.div className="absolute inset-0 bg-[rgb(10_11_14/0.7)]" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.14 }} onClick={onClose} aria-hidden />
           <motion.div
+            ref={panelRef}
             role="dialog"
             aria-modal="true"
             aria-label="Busca e comandos"
+            data-command-menu
+            tabIndex={-1}
             initial={{ opacity: 0, y: -8, scale: 0.985 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -4, scale: 0.99, transition: { duration: 0.1 } }}
             transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-            className="relative flex w-full max-w-2xl flex-col overflow-hidden rounded-lg bg-surface shadow-overlay"
+            className="relative flex w-full max-w-2xl flex-col overflow-hidden rounded-lg bg-surface shadow-overlay outline-none"
             onKeyDown={onKeyDown}
           >
             <div className="flex items-center gap-3 border-b border-line px-4">
