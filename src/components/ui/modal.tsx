@@ -7,6 +7,7 @@ import { createPortal } from "react-dom";
 import { cn } from "@/lib/cn";
 import { Button } from "./button";
 import { IconButton } from "./icon-button";
+import { useDialogFocus } from "./use-dialog-focus";
 
 type ModalProps = {
   open: boolean;
@@ -20,52 +21,21 @@ type ModalProps = {
   role?: "dialog" | "alertdialog";
 };
 
-const FOCUSABLE = 'a[href],button:not([disabled]),textarea:not([disabled]),input:not([disabled]),select:not([disabled]),[tabindex]:not([tabindex="-1"])';
-
 export function Modal({ open, onClose, title, description, children, footer, size = "md", role = "dialog" }: ModalProps) {
   const panelRef = useRef<HTMLDivElement>(null);
   const titleId = useId();
   const descriptionId = useId();
+  useDialogFocus(panelRef, open, onClose);
 
+  // Lock page scroll while open. Keyed on `open` only, like the focus logic.
   useEffect(() => {
     if (!open) return;
-    const previouslyFocused = document.activeElement as HTMLElement | null;
     const overflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-
-    const frame = requestAnimationFrame(() => {
-      const panel = panelRef.current;
-      const autofocus = panel?.querySelector<HTMLElement>("[data-autofocus]") ?? panel?.querySelector<HTMLElement>(FOCUSABLE);
-      (autofocus ?? panel)?.focus();
-    });
-
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        event.stopPropagation();
-        onClose();
-      }
-      if (event.key === "Tab" && panelRef.current) {
-        const nodes = Array.from(panelRef.current.querySelectorAll<HTMLElement>(FOCUSABLE));
-        if (nodes.length === 0) return;
-        const first = nodes[0]!;
-        const last = nodes[nodes.length - 1]!;
-        if (event.shiftKey && document.activeElement === first) {
-          event.preventDefault();
-          last.focus();
-        } else if (!event.shiftKey && document.activeElement === last) {
-          event.preventDefault();
-          first.focus();
-        }
-      }
-    };
-    document.addEventListener("keydown", onKeyDown);
     return () => {
-      cancelAnimationFrame(frame);
-      document.removeEventListener("keydown", onKeyDown);
       document.body.style.overflow = overflow;
-      previouslyFocused?.focus?.();
     };
-  }, [open, onClose]);
+  }, [open]);
 
   if (typeof document === "undefined") return null;
 
@@ -110,7 +80,7 @@ export function Modal({ open, onClose, title, description, children, footer, siz
                   </p>
                 )}
               </div>
-              <IconButton label="Fechar" size="sm" onClick={onClose} showTooltip={false} className="-mt-1 -mr-2">
+              <IconButton label="Fechar" size="sm" onClick={onClose} showTooltip={false} className="-mt-1 -mr-2" data-dialog-close>
                 <X />
               </IconButton>
             </header>

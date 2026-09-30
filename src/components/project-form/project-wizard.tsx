@@ -36,6 +36,7 @@ import { ReviewStep } from "./steps/review-step";
 import { ScopeStep } from "./steps/scope-step";
 import type { SetField } from "./types";
 import { LOCAL_KEY_NEW, clearLocalBackups, hasMeaningfulContent, readLocalBackup, useAutosave, type LocalBackup, type SaveState } from "./use-autosave";
+import { isDialogOpen } from "@/components/ui/use-dialog-focus";
 
 type WizardProps =
   | { mode: "create"; initialValues: ProjectFormValues; draftId: string | null; initialStep: number; savedAt: string | null; origin?: ProjectOrigin | null }
@@ -205,7 +206,7 @@ export function ProjectWizard(props: WizardProps) {
   // Keyboard: ⌘/Ctrl + Enter advances (or submits on review).
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
-      if ((event.metaKey || event.ctrlKey) && event.key === "Enter") {
+      if ((event.metaKey || event.ctrlKey) && event.key === "Enter" && !isDialogOpen()) {
         event.preventDefault();
         document.querySelector<HTMLButtonElement>("[data-wizard-primary]")?.click();
       }

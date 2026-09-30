@@ -41,6 +41,8 @@ import { logout } from "@/server/auth/actions";
 import { PRIMARY_NAV } from "./nav";
 import { QuickCapture } from "./quick-capture";
 import { useGlobalSearch } from "./use-global-search";
+import { isDialogOpen } from "@/components/ui/use-dialog-focus";
+import { isTypingTarget } from "@/lib/keyboard";
 
 const SEARCH_ICONS: Record<SearchGroup, ReactNode> = {
   projects: <FolderKanban />,
@@ -63,11 +65,6 @@ const NAV_ICONS: Record<string, ReactNode> = {
 };
 
 type ProjectIndexItem = { id: string; name: string; codename: string | null; status: ProjectStatus };
-
-function isTypingTarget(target: EventTarget | null) {
-  const el = target as HTMLElement | null;
-  return Boolean(el && (el.isContentEditable || ["INPUT", "TEXTAREA", "SELECT"].includes(el.tagName)));
-}
 
 export function AppHeader({ user, projects, inboxCount }: { user: { name: string; email: string }; projects: ProjectIndexItem[]; inboxCount: number }) {
   const router = useRouter();
@@ -96,12 +93,14 @@ export function AppHeader({ user, projects, inboxCount }: { user: { name: string
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
+        // Toggle the palette, but never stack it over another open dialog.
+        if (isDialogOpen() && !document.querySelector("[data-command-menu]")) return;
         event.preventDefault();
         setPaletteOpen((open) => !open);
         return;
       }
       if (isTypingTarget(event.target) || event.metaKey || event.ctrlKey || event.altKey) return;
-      if (document.querySelector('[aria-modal="true"]')) return;
+      if (isDialogOpen()) return;
       const key = event.key.toLowerCase();
       if (key === "n") {
         event.preventDefault();
