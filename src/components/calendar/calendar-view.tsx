@@ -10,7 +10,7 @@ type Commitment = { id: string; title: string; date: string; time: string; proje
 const WEEKDAYS = ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"];
 const MONTHS = ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"];
 const dateKey = (date: Date) => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
-const fromKey = (value: string) => { const [y, m, d] = value.split("-").map(Number); return new Date(y, m - 1, d); };
+const fromKey = (value: string) => { const parts = value.split("-"); return new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2])); };
 
 export function CalendarView({ projects }: { projects: Project[] }) {
   const today = new Date();
