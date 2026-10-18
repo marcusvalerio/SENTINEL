@@ -120,7 +120,7 @@ export function CreateMenu({ corner = CRT_CORNER, onSelect, label = "Create" }: 
 
   const panel = useRef<HTMLDivElement | null>(null);
   const say = useRef<HTMLSpanElement | null>(null);
-  const beat = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const beat = useRef<number | null>(null);
   const [sayW, setSayW] = useState(96);
   const reactId = useId();
   const panelId = `crt-panel-${reactId.replace(/:/g, "")}`;
