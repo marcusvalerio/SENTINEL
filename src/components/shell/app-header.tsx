@@ -79,10 +79,12 @@ export function AppHeader({ user, projects, inboxCount }: { user: { name: string
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [captureOpen, setCaptureOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const [query, setQuery] = useState("");
   const [theme, setTheme] = useState<"dark" | "light">("dark");
 
   useEffect(() => {
+    setMounted(true);
     const saved = window.localStorage.getItem("sentinel-theme");
     const next = saved === "light" ? "light" : "dark";
     document.documentElement.dataset.theme = next;
@@ -199,8 +201,8 @@ export function AppHeader({ user, projects, inboxCount }: { user: { name: string
   return (
     <header className="sticky top-0 z-[var(--z-header)] border-b border-line bg-canvas/80 backdrop-blur-xl backdrop-saturate-150">
       <div className="mx-auto flex h-14 max-w-[1280px] items-center gap-2 px-4 sm:px-6 lg:px-8">
-        <button type="button" onClick={() => setMenuOpen(true)} className="-ml-1.5 flex size-9 items-center justify-center rounded-md text-fg-muted hover:bg-surface-2 hover:text-fg-strong lg:hidden" aria-label="Abrir navegação" aria-expanded={menuOpen}>
-          <Menu className="size-[18px]" />
+        <button type="button" onClick={() => setMenuOpen((open) => !open)} className="-ml-1.5 flex size-10 items-center justify-center rounded-full text-fg-muted transition-colors hover:bg-surface-2 hover:text-fg-strong lg:hidden" aria-label="Abrir navegação" aria-expanded={menuOpen}>
+          <Menu className="size-5" />
         </button>
         <Link href="/" className="-ml-1 flex items-center rounded-md px-1 py-1" aria-label="SENTINEL — Command Center">
           <Wordmark />
@@ -275,9 +277,9 @@ export function AppHeader({ user, projects, inboxCount }: { user: { name: string
       </div>
 
       {/* Mobile navigation sheet */}
-      <AnimatePresence>
-        {menuOpen && typeof document !== "undefined" && createPortal(
-          <div className="fixed inset-0 z-[var(--z-overlay)] lg:hidden">
+      {mounted && createPortal(
+        <AnimatePresence>
+          {menuOpen && <div className="fixed inset-0 z-[100] lg:hidden" style={{ isolation: "isolate" }}>
             <motion.div className="absolute inset-0 bg-[rgb(10_11_14/0.7)]" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setMenuOpen(false)} aria-hidden />
             <motion.nav
               aria-label="Principal"
@@ -311,10 +313,10 @@ export function AppHeader({ user, projects, inboxCount }: { user: { name: string
                 </button>
               </div>
             </motion.nav>
-          </div>,
-          document.body,
-        )}
-      </AnimatePresence>
+          </div>}
+        </AnimatePresence>,
+        document.body,
+      )}
 
       <QuickCapture open={captureOpen} onClose={() => setCaptureOpen(false)} project={currentProject} />
       <CommandMenu
