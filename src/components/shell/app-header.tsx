@@ -4,6 +4,7 @@ import Link from "next/link";
 import { AnimatePresence, motion } from "motion/react";
 import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState, useTransition, type ReactNode } from "react";
+import { createPortal } from "react-dom";
 import {
   Activity,
   FileText,
@@ -275,7 +276,7 @@ export function AppHeader({ user, projects, inboxCount }: { user: { name: string
 
       {/* Mobile navigation sheet */}
       <AnimatePresence>
-        {menuOpen && (
+        {menuOpen && typeof document !== "undefined" && createPortal(
           <div className="fixed inset-0 z-[var(--z-overlay)] lg:hidden">
             <motion.div className="absolute inset-0 bg-[rgb(10_11_14/0.7)]" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setMenuOpen(false)} aria-hidden />
             <motion.nav
@@ -310,7 +311,8 @@ export function AppHeader({ user, projects, inboxCount }: { user: { name: string
                 </button>
               </div>
             </motion.nav>
-          </div>
+          </div>,
+          document.body,
         )}
       </AnimatePresence>
 
