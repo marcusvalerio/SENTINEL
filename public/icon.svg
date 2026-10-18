@@ -1,5 +1,33 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1254 1254">
-  <rect width="1254" height="1254" rx="240" fill="#202124"/>
-  <defs><linearGradient id="blue" x1="441" y1="333" x2="814" y2="926" gradientUnits="userSpaceOnUse"><stop stop-color="#2455A7"/><stop offset="1" stop-color="#1747A0"/></linearGradient></defs>
-  <path d="M 767,571 L 750,562 L 729,555 L 689,553 L 688,672 L 683,691 L 672,710 L 656,726 L 640,736 L 616,743 L 568,743 L 553,746 L 530,758 L 515,774 L 507,790 L 503,805 L 503,877 L 510,897 L 526,915 L 541,923 L 553,926 L 576,926 L 590,922 L 761,832 L 781,818 L 798,799 L 808,780 L 814,756 L 814,647 L 809,624 L 802,608 L 788,589 Z" fill="url(#blue)"/><path d="M 730,343 L 717,336 L 703,333 L 681,334 L 658,343 L 484,451 L 457,481 L 447,501 L 441,524 L 441,652 L 445,667 L 452,681 L 474,704 L 492,714 L 513,721 L 538,724 L 564,724 L 565,596 L 570,575 L 580,557 L 594,542 L 612,530 L 634,523 L 689,522 L 698,520 L 721,508 L 737,491 L 745,476 L 750,456 L 750,376 L 743,357 Z" fill="url(#blue)"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="metal" x1="300" y1="170" x2="740" y2="850" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#69A8FF"/>
+      <stop offset=".28" stop-color="#2563D8"/>
+      <stop offset=".58" stop-color="#0B36A8"/>
+      <stop offset=".82" stop-color="#2464D8"/>
+      <stop offset="1" stop-color="#08256E"/>
+    </linearGradient>
+    <linearGradient id="edge" x1="250" y1="200" x2="770" y2="820" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#A6D1FF" stop-opacity=".95"/>
+      <stop offset=".5" stop-color="#397BEE" stop-opacity=".35"/>
+      <stop offset="1" stop-color="#06194D" stop-opacity=".8"/>
+    </linearGradient>
+    <linearGradient id="shine" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#FFFFFF" stop-opacity=".7"/>
+      <stop offset=".5" stop-color="#8FC5FF" stop-opacity=".08"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity=".35"/>
+    </linearGradient>
+    <filter id="shadow" x="200" y="150" width="650" height="760" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse">
+      <feGaussianBlur stdDeviation="18"/>
+    </filter>
+  </defs>
+  <rect width="1024" height="1024" rx="230" fill="#17181C"/>
+  <rect x="2" y="2" width="1020" height="1020" rx="228" fill="none" stroke="#FFFFFF" stroke-opacity=".08" stroke-width="4"/>
+  <g transform="translate(0 2)">
+    <path d="M627 457 613 450 590 444 558 443 557 540 552 557 543 573 529 586 512 595 493 601 455 601 441 604 421 615 409 630 402 644 399 658 399 718 405 735 420 750 434 757 447 760 467 760 482 756 617 686 635 674 649 659 658 641 662 621 662 522 658 503 651 487 640 472Z" fill="#001A68" opacity=".5" filter="url(#shadow)"/>
+    <path d="M627 457 613 450 590 444 558 443 557 540 552 557 543 573 529 586 512 595 493 601 455 601 441 604 421 615 409 630 402 644 399 658 399 718 405 735 420 750 434 757 447 760 467 760 482 756 617 686 635 674 649 659 658 641 662 621 662 522 658 503 651 487 640 472Z" fill="url(#metal)" stroke="url(#edge)" stroke-width="5" stroke-linejoin="round"/>
+    <path d="M597 280 585 273 573 270 554 271 534 279 398 364 376 388 367 406 362 426 362 529 366 542 373 555 391 574 407 582 425 588 445 590 466 590 467 486 471 468 480 453 493 440 508 430 527 424 572 423 580 421 599 411 612 397 619 383 623 366 623 302 617 287Z" fill="url(#metal)" stroke="url(#edge)" stroke-width="5" stroke-linejoin="round"/>
+    <path d="M387 407 535 314" stroke="url(#shine)" stroke-width="7" stroke-linecap="round" opacity=".6"/>
+    <path d="M422 714 584 630" stroke="url(#shine)" stroke-width="7" stroke-linecap="round" opacity=".48"/>
+  </g>
 </svg>
