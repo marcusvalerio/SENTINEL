@@ -5,5 +5,6 @@ export const PRIMARY_NAV = [
   { href: "/inbox", label: "Inbox", match: (p: string) => p.startsWith("/inbox") },
   { href: "/subscriptions", label: "Assinaturas", match: (p: string) => p.startsWith("/subscriptions") },
   { href: "/calendar", label: "Calendário", match: (p: string) => p.startsWith("/calendar") },
+  { href: "/memory", label: "Memória", match: (p: string) => p.startsWith("/memory") },
   { href: "/history", label: "Histórico", match: (p: string) => p.startsWith("/history") },
 ] as const;

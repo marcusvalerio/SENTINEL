@@ -16,6 +16,7 @@ import {
   ListChecks,
   LogOut,
   Menu,
+  Brain,
   PencilLine,
   Plus,
   Radar,
@@ -66,6 +67,7 @@ const NAV_ICONS: Record<string, ReactNode> = {
   "/subscriptions": <CreditCard />,
   "/history": <History />,
   "/calendar": <CalendarDays />,
+  "/memory": <Brain />,
 };
 
 type ProjectIndexItem = { id: string; name: string; codename: string | null; status: ProjectStatus };
