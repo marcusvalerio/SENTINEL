@@ -18,7 +18,7 @@ export function LoginForm({ next, notice }: { next?: string; notice?: string }) 
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-      className="flex flex-col gap-5 rounded-xl bg-surface/80 p-6 shadow-[inset_0_0_0_1px_var(--color-line-2),0_24px_64px_-24px_rgb(0_0_0/0.7)] backdrop-blur-md sm:p-7"
+      className="flex flex-col gap-5 rounded-[24px] border border-line-2 bg-surface/85 p-6 shadow-[0_24px_64px_-24px_rgb(0_0_0/0.55)] backdrop-blur-xl sm:p-7"
       noValidate
     >
       {next && <input type="hidden" name="next" value={next} />}

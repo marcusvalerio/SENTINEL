@@ -9,15 +9,15 @@ export type ButtonSize = "sm" | "md" | "lg";
 
 const base =
   "group/button relative inline-flex shrink-0 select-none items-center justify-center gap-2 whitespace-nowrap font-medium " +
-  "transition-[background-color,border-color,color,box-shadow,transform] duration-150 ease-[var(--ease-out-quart)] " +
-  "active:translate-y-px disabled:pointer-events-none disabled:opacity-45 aria-disabled:pointer-events-none aria-disabled:opacity-45 " +
+  "transition-[background-color,border-color,color,box-shadow,transform] duration-250 ease-[var(--ease-out-quart)] " +
+  "active:scale-[0.98] disabled:pointer-events-none disabled:opacity-45 aria-disabled:pointer-events-none aria-disabled:opacity-45 " +
   "[&_svg]:shrink-0";
 
 const variants: Record<ButtonVariant, string> = {
   primary:
-    "bg-accent text-fg-on-accent shadow-[inset_0_1px_0_rgb(255_255_255/0.25),0_1px_2px_rgb(0_0_0/0.35)] hover:bg-accent-hover",
+    "rounded-full border-2 border-accent bg-accent text-[#F5F4F0] shadow-none hover:border-[#202124] hover:bg-[#202124]",
   secondary:
-    "bg-surface-2 text-fg-strong shadow-[inset_0_0_0_1px_var(--color-line-2),inset_0_1px_0_rgb(255_255_255/0.03)] hover:bg-surface-3 hover:shadow-[inset_0_0_0_1px_var(--color-line-3)]",
+    "rounded-full border-2 border-accent bg-transparent text-accent shadow-none hover:bg-accent hover:text-[#F5F4F0]",
   ghost: "text-fg-muted hover:bg-surface-2 hover:text-fg-strong",
   danger:
     "bg-danger-soft text-danger shadow-[inset_0_0_0_1px_rgb(224_146_143/0.25)] hover:bg-[rgb(224_146_143/0.16)]",
@@ -26,9 +26,9 @@ const variants: Record<ButtonVariant, string> = {
 };
 
 const sizes: Record<ButtonSize, string> = {
-  sm: "h-8 rounded-sm px-2.5 text-body-sm [&_svg]:size-3.5",
-  md: "h-9 rounded-md px-3.5 text-body-sm [&_svg]:size-4",
-  lg: "h-11 rounded-md px-5 text-body [&_svg]:size-4",
+  sm: "h-[42px] rounded-full px-5 text-body-sm [&_svg]:size-3.5",
+  md: "h-[46px] rounded-full px-6 text-body-sm [&_svg]:size-4",
+  lg: "h-[52px] rounded-full px-7 text-body [&_svg]:size-4",
 };
 
 export function buttonStyles({

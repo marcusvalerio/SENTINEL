@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1254 1254" fill="none" role="img" aria-labelledby="title">
+  <title id="title">SENTINEL — símbolo</title>
+  <defs><linearGradient id="blue" x1="441" y1="333" x2="814" y2="926" gradientUnits="userSpaceOnUse"><stop stop-color="#2455A7"/><stop offset="1" stop-color="#1747A0"/></linearGradient></defs>
+  <path d="M 767,571 L 750,562 L 729,555 L 689,553 L 688,672 L 683,691 L 672,710 L 656,726 L 640,736 L 616,743 L 568,743 L 553,746 L 530,758 L 515,774 L 507,790 L 503,805 L 503,877 L 510,897 L 526,915 L 541,923 L 553,926 L 576,926 L 590,922 L 761,832 L 781,818 L 798,799 L 808,780 L 814,756 L 814,647 L 809,624 L 802,608 L 788,589 Z" fill="url(#blue)"/>
+  <path d="M 730,343 L 717,336 L 703,333 L 681,334 L 658,343 L 484,451 L 457,481 L 447,501 L 441,524 L 441,652 L 445,667 L 452,681 L 474,704 L 492,714 L 513,721 L 538,724 L 564,724 L 565,596 L 570,575 L 580,557 L 594,542 L 612,530 L 634,523 L 689,522 L 698,520 L 721,508 L 737,491 L 745,476 L 750,456 L 750,376 L 743,357 Z" fill="url(#blue)"/>
+</svg>
