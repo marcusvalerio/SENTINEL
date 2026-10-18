@@ -42,7 +42,7 @@ export function LogoMark({ className, animated = true }: { className?: string; a
         </defs>
         <g className="sentinel-metal-mark__float">
           <path d="M767 571 L750 562 L729 555 L689 553 L688 672 L683 691 L672 710 L656 726 L640 736 L616 743 L568 743 L553 746 L530 758 L515 774 L507 790 L503 805 L503 877 L510 897 L526 915 L541 923 L553 926 L576 926 L590 922 L761 832 L781 818 L798 799 L808 780 L814 756 L814 647 L809 624 L802 608 L788 589 Z" fill={`url(#${faceId})`} stroke={`url(#${edgeId})`} strokeWidth="5" strokeLinejoin="round" />
-          <path d="M730 343 L717 336 L703 333 L681 334 L658 343 L484 451 L457 481 L447 501 L441 524 L441 652 L445 667 L452 681 L474 704 L492 714 L513 721 L538 724 L564 724 L565 596 L570 575 L580 557 L594 542 L612 530 L634 523 L689 522 L698 520 L721 508 L737 491 L745 476 L750 456 L750 376 L743 357 Z" fill="url(#sentinel-metal-face)" stroke="url(#sentinel-metal-edge)" strokeWidth="5" strokeLinejoin="round" />
+          <path d="M730 343 L717 336 L703 333 L681 334 L658 343 L484 451 L457 481 L447 501 L441 524 L441 652 L445 667 L452 681 L474 704 L492 714 L513 721 L538 724 L564 724 L565 596 L570 575 L580 557 L594 542 L612 530 L634 523 L689 522 L698 520 L721 508 L737 491 L745 476 L750 456 L750 376 L743 357 Z" fill={`url(#${faceId})`} stroke={`url(#${edgeId})`} strokeWidth="5" strokeLinejoin="round" />
           <g clipPath={`url(#${clipId})`} className={animated ? "sentinel-metal-mark__shine" : undefined}>
             <rect x="0" y="250" width="280" height="800" fill={`url(#${sheenId})`} transform="skewX(-24)" />
           </g>
