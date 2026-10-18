@@ -707,10 +707,10 @@ html[data-theme="light"] .crt-stage {
   50% { transform: translateY(-5px) rotateX(1.5deg); filter: drop-shadow(0 15px 18px rgb(1 23 255 / .25)); }
 }
 @keyframes sentinel-metal-sweep {
-  0%, 12% { transform: translateX(-1400px); opacity: 0; }
+  0%, 12% { transform: translateX(-180px); opacity: 0; }
   22% { opacity: .22; }
   48% { opacity: .72; }
-  65%, 100% { transform: translateX(1600px); opacity: 0; }
+  65%, 100% { transform: translateX(180px); opacity: 0; }
 }
 @media (prefers-reduced-motion: reduce) {
   .sentinel-metal-mark--animated, .sentinel-metal-mark__shine { animation: none !important; }
