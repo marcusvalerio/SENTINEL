@@ -18,11 +18,11 @@ const variants: Record<ButtonVariant, string> = {
     "rounded-full border-2 border-accent bg-accent text-[#F5F4F0] shadow-none hover:border-[#202124] hover:bg-[#202124]",
   secondary:
     "rounded-full border-2 border-accent bg-transparent text-accent shadow-none hover:bg-accent hover:text-[#F5F4F0]",
-  ghost: "text-fg-muted hover:bg-surface-2 hover:text-fg-strong",
+  ghost: "rounded-full text-fg-muted hover:bg-surface-2 hover:text-fg-strong",
   danger:
-    "bg-danger-soft text-danger shadow-[inset_0_0_0_1px_rgb(224_146_143/0.25)] hover:bg-[rgb(224_146_143/0.16)]",
+    "rounded-full border border-danger/30 bg-danger-soft text-danger shadow-none hover:bg-[rgb(224_146_143/0.16)]",
   identity:
-    "bg-identity text-fg-strong shadow-[inset_0_0_0_1px_rgb(147_166_216/0.18),inset_0_1px_0_rgb(255_255_255/0.05)] hover:bg-identity-2",
+    "rounded-full border border-line-2 bg-identity text-fg-strong shadow-none hover:bg-identity-2",
 };
 
 const sizes: Record<ButtonSize, string> = {
