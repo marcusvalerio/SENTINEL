@@ -13,6 +13,10 @@ export const metadata: Metadata = {
   title: { default: "SENTINEL", template: "%s · SENTINEL" },
   description: "Memória operacional dos projetos.",
   robots: { index: false, follow: false },
+  icons: {
+    icon: [{ url: "/icon.svg", type: "image/svg+xml" }],
+    apple: [{ url: "/apple-icon", sizes: "1024x1024", type: "image/png" }],
+  },
 };
 
 export const viewport: Viewport = {
