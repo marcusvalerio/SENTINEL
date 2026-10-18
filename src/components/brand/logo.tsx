@@ -48,9 +48,9 @@ export function LogoMark({ className, animated = true }: { className?: string; a
 
 export function Wordmark({ className }: { className?: string }) {
   return (
-    <span className={cn("inline-flex items-center gap-2.5 text-fg-strong", className)}>
-      <LogoMark className="size-6" />
-      <span className="font-display text-[0.8125rem] font-semibold tracking-[0.28em]">SENTINEL</span>
+    <span className={cn("inline-flex items-center gap-2 text-fg-strong", className)}>
+      <LogoMark className="size-8" />
+      <span className="font-display text-[0.8125rem] font-semibold tracking-[0.22em]">SENTINEL</span>
     </span>
   );
 }
