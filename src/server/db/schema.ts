@@ -618,6 +618,23 @@ export const projectExperiments = pgTable(
   (t) => [index("project_experiments_project_idx").on(t.projectId)],
 );
 
+
+/** User-owned calendar commitments; projects are optional but ownership is enforced in actions. */
+export const calendarCommitments = pgTable(
+  "calendar_commitments",
+  {
+    id: uuid().primaryKey().defaultRandom(),
+    ownerId: uuid().notNull().references(() => users.id, { onDelete: "cascade" }),
+    projectId: uuid().references(() => projects.id, { onDelete: "set null" }),
+    title: text().notNull(),
+    eventDate: date({ mode: "string" }).notNull(),
+    eventTime: text().notNull().default("10:00"),
+    notes: text(),
+    ...timestamps,
+  },
+  (t) => [index("calendar_commitments_owner_date_idx").on(t.ownerId, t.eventDate, t.eventTime)],
+);
+
 export type User = typeof users.$inferSelect;
 export type Project = typeof projects.$inferSelect;
 export type ProjectFinance = typeof projectFinances.$inferSelect;
