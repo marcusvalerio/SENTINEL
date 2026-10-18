@@ -23,7 +23,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
       <div className="relative z-10 flex flex-1 items-center justify-center px-4 py-16">
         <div className="w-full max-w-[380px]">
           <div className="mb-10 flex flex-col items-center gap-5 text-center">
-            <LogoMark className="size-11 text-fg-strong" />
+            <LogoMark className="mb-1 size-24 sm:size-28" animated />
             <div className="flex flex-col gap-2">
               <h1 className="font-display text-sm font-semibold tracking-[0.34em] text-fg-strong">SENTINEL</h1>
               <p className="text-body-sm text-fg-muted">A memória operacional dos seus projetos.</p>
