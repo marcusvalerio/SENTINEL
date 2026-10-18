@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "motion/react";
 import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState, useTransition, type ReactNode } from "react";
@@ -274,9 +275,10 @@ export function AppHeader({ user, projects, inboxCount }: { user: { name: string
       </div>
 
       {/* Mobile navigation sheet */}
-      <AnimatePresence>
-        {menuOpen && (
-          <div className="fixed inset-0 z-[var(--z-overlay)] lg:hidden">
+      {typeof document !== "undefined" && createPortal(
+        <AnimatePresence>
+          {menuOpen && (
+          <div className="fixed inset-0 z-[var(--z-modal)] lg:hidden" role="presentation">
             <motion.div className="absolute inset-0 bg-[rgb(10_11_14/0.7)]" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setMenuOpen(false)} aria-hidden />
             <motion.nav
               aria-label="Principal"
@@ -284,7 +286,7 @@ export function AppHeader({ user, projects, inboxCount }: { user: { name: string
               animate={{ x: 0 }}
               exit={{ x: "-100%" }}
               transition={{ type: "spring", stiffness: 420, damping: 42 }}
-              className="absolute inset-y-0 left-0 flex w-[82%] max-w-80 flex-col gap-1 bg-canvas p-4 shadow-overlay"
+              className="absolute inset-y-0 left-0 flex w-[min(82vw,20rem)] flex-col gap-1 overflow-y-auto border-r border-line bg-canvas p-4 pt-[max(1rem,env(safe-area-inset-top))] pb-[max(1rem,env(safe-area-inset-bottom))] shadow-overlay"
             >
               <div className="mb-4 flex items-center justify-between">
                 <Wordmark />
@@ -311,8 +313,10 @@ export function AppHeader({ user, projects, inboxCount }: { user: { name: string
               </div>
             </motion.nav>
           </div>
-        )}
-      </AnimatePresence>
+          )}
+        </AnimatePresence>,
+        document.body,
+      )}
 
       <QuickCapture open={captureOpen} onClose={() => setCaptureOpen(false)} project={currentProject} />
       <CommandMenu
