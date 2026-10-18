@@ -18,21 +18,22 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
   if (user) redirect("/");
 
   return (
-    <main id="main" className="relative flex min-h-dvh flex-col overflow-hidden">
-      <BrandLoop media={LOGIN_LOOP} fallback={<Aperture />} />
-      <div className="relative z-10 flex flex-1 items-center justify-center px-4 py-16">
-        <div className="w-full max-w-[380px]">
-          <div className="mb-10 flex flex-col items-center gap-5 text-center">
-            <LogoMark className="mb-1 size-24 sm:size-28" animated />
+    <main id="main" className="relative flex min-h-dvh flex-col overflow-hidden bg-canvas">
+      <BrandLoop media={LOGIN_LOOP} fallback={<LoginAtmosphere />} />
+      <div className="relative z-10 flex flex-1 items-center justify-center px-5 py-8 sm:px-6 sm:py-12">
+        <div className="w-full max-w-[400px]">
+          <div className="mb-7 flex flex-col items-center gap-3 text-center sm:mb-9 sm:gap-4">
+            <LogoMark className="size-32 sm:size-36" animated />
             <div className="flex flex-col gap-2">
               <h1 className="font-display text-sm font-semibold tracking-[0.34em] text-fg-strong">SENTINEL</h1>
-              <p className="text-body-sm text-fg-muted">A memória operacional dos seus projetos.</p>
+              <p className="max-w-[280px] text-body-sm text-fg-muted">A memória operacional dos seus projetos.</p>
             </div>
           </div>
           <LoginForm next={next} notice={reason ? NOTICES[reason] : undefined} />
+          <p className="mt-5 text-center text-caption tracking-wide text-fg-subtle">SEU ESPAÇO DE TRABALHO, EM UM SÓ LUGAR.</p>
         </div>
       </div>
-      <footer className="relative z-10 flex items-center justify-between px-6 pb-6 text-caption tracking-normal text-fg-subtle">
+      <footer className="relative z-10 flex items-center justify-between px-6 pb-5 pt-2 text-caption tracking-normal text-fg-subtle">
         <span className="eyebrow">Acesso privado</span>
         <span className="eyebrow">v0.1</span>
       </footer>
@@ -40,21 +41,12 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
   );
 }
 
-/** Concentric instrument rings behind the form — the SENTINEL aperture. */
-function Aperture() {
+/** Quiet blue light gives the mark depth without competing with the form. */
+function LoginAtmosphere() {
   return (
-    <div className="absolute inset-0 flex items-center justify-center">
-      <div className="absolute inset-0 bg-grid [mask-image:radial-gradient(ellipse_at_center,black_10%,transparent_65%)]" />
-      <div className="absolute size-[1100px] rounded-full bg-[radial-gradient(circle,rgb(27_41_75/0.55),transparent_60%)]" />
-      <svg viewBox="0 0 800 800" className="absolute size-[800px] max-w-none opacity-90">
-        <circle cx="400" cy="400" r="399" stroke="rgb(212 207 214 / 0.05)" fill="none" />
-        <circle cx="400" cy="400" r="300" stroke="rgb(212 207 214 / 0.06)" fill="none" strokeDasharray="2 6" />
-        <circle cx="400" cy="400" r="210" stroke="rgb(212 207 214 / 0.07)" fill="none" />
-        <g className="origin-center animate-[spin_80s_linear_infinite]" style={{ transformBox: "fill-box" }}>
-          <circle cx="400" cy="400" r="300" fill="none" stroke="transparent" />
-          <path d="M400 100 A300 300 0 0 1 612 188" stroke="rgb(181 158 95 / 0.45)" strokeWidth="1.25" fill="none" strokeLinecap="round" />
-        </g>
-      </svg>
+    <div className="absolute inset-0 overflow-hidden" aria-hidden="true">
+      <div className="absolute left-1/2 top-[-12rem] size-[36rem] -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgb(1_23_255/0.13),transparent_68%)] blur-2xl" />
+      <div className="absolute inset-x-0 top-0 h-[42%] bg-gradient-to-b from-[rgb(1_23_255/0.035)] to-transparent" />
     </div>
   );
 }
