@@ -21,6 +21,9 @@ import {
   Radar,
   Scale,
   Search,
+  Sun,
+  Moon,
+  CalendarDays,
   Wrench,
   X,
   ClipboardList,
@@ -62,6 +65,7 @@ const NAV_ICONS: Record<string, ReactNode> = {
   "/inbox": <Inbox />,
   "/subscriptions": <CreditCard />,
   "/history": <History />,
+  "/calendar": <CalendarDays />,
 };
 
 type ProjectIndexItem = { id: string; name: string; codename: string | null; status: ProjectStatus };
@@ -73,6 +77,21 @@ export function AppHeader({ user, projects, inboxCount }: { user: { name: string
   const [captureOpen, setCaptureOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [query, setQuery] = useState("");
+  const [theme, setTheme] = useState<"dark" | "light">("dark");
+
+  useEffect(() => {
+    const saved = window.localStorage.getItem("sentinel-theme");
+    const next = saved === "light" ? "light" : "dark";
+    document.documentElement.dataset.theme = next;
+    setTheme(next);
+  }, []);
+
+  const toggleTheme = useCallback(() => {
+    const next = theme === "dark" ? "light" : "dark";
+    document.documentElement.dataset.theme = next;
+    window.localStorage.setItem("sentinel-theme", next);
+    setTheme(next);
+  }, [theme]);
   const { result, loading, search } = useGlobalSearch();
   const [signingOut, startSignOut] = useTransition();
   const isMac = useIsMac();
@@ -192,9 +211,9 @@ export function AppHeader({ user, projects, inboxCount }: { user: { name: string
                 key={item.href}
                 href={item.href}
                 aria-current={active ? "page" : undefined}
-                className={cn("relative flex h-8 items-center gap-1.5 rounded-md px-2.5 text-body-sm transition-colors duration-150", active ? "text-fg-strong" : "text-fg-muted hover:text-fg-strong")}
+                className={cn("relative flex h-9 items-center gap-1.5 rounded-full px-3 text-body-sm transition-colors duration-150", active ? "text-fg-strong" : "text-fg-muted hover:text-fg-strong")}
               >
-                {active && <motion.span layoutId="nav-active" className="absolute inset-0 rounded-md bg-surface-2/80 shadow-[inset_0_0_0_1px_var(--color-line)]" transition={{ type: "spring", stiffness: 500, damping: 40 }} />}
+                {active && <motion.span layoutId="nav-active" className="absolute inset-0 rounded-full bg-surface-2/80 shadow-[inset_0_0_0_1px_var(--color-line)]" transition={{ type: "spring", stiffness: 500, damping: 40 }} />}
                 <span className="relative">{item.label}</span>
                 {item.href === "/inbox" && inboxCount > 0 && <span className="font-numeric relative rounded-full bg-accent-soft px-1.5 text-[0.625rem] leading-4 text-accent">{inboxCount}</span>}
               </Link>
@@ -203,10 +222,13 @@ export function AppHeader({ user, projects, inboxCount }: { user: { name: string
         </nav>
 
         <div className="ml-auto flex items-center gap-2">
+          <button type="button" onClick={toggleTheme} className="flex size-9 items-center justify-center rounded-full text-fg-muted transition-colors hover:bg-surface-2 hover:text-fg-strong" aria-label={theme === "dark" ? "Ativar modo claro" : "Ativar modo escuro"} title={theme === "dark" ? "Modo claro" : "Modo escuro"}>
+            {theme === "dark" ? <Sun className="size-4" /> : <Moon className="size-4" />}
+          </button>
           <button
             type="button"
             onClick={() => setPaletteOpen(true)}
-            className="group flex h-8 items-center gap-2 rounded-md px-2.5 text-body-sm text-fg-subtle shadow-[inset_0_0_0_1px_var(--color-line-2)] transition-[color,box-shadow,background-color] hover:bg-surface/60 hover:text-fg-muted hover:shadow-[inset_0_0_0_1px_var(--color-line-3)] xl:w-52"
+            className="group flex h-9 items-center gap-2 rounded-full px-3 text-body-sm text-fg-subtle shadow-[inset_0_0_0_1px_var(--color-line-2)] transition-[color,box-shadow,background-color] hover:bg-surface/60 hover:text-fg-muted hover:shadow-[inset_0_0_0_1px_var(--color-line-3)] xl:w-52"
             aria-label="Abrir busca e comandos"
           >
             <Search className="size-3.5" />
@@ -239,7 +261,7 @@ export function AppHeader({ user, projects, inboxCount }: { user: { name: string
                 onClick={toggle}
                 {...aria}
                 aria-label="Conta"
-                className="flex size-8 items-center justify-center rounded-full bg-identity font-display text-[11px] font-semibold tracking-wide text-accent shadow-[inset_0_0_0_1px_rgb(215_196_133/0.25)] transition-shadow hover:shadow-[inset_0_0_0_1px_rgb(215_196_133/0.55)]"
+                className="flex size-9 items-center justify-center rounded-full bg-identity font-display text-[11px] font-semibold tracking-wide text-accent shadow-[inset_0_0_0_1px_rgb(215_196_133/0.25)] transition-shadow hover:shadow-[inset_0_0_0_1px_rgb(215_196_133/0.55)]"
               >
                 {signingOut ? <span className="size-3 animate-spin rounded-full border border-accent border-t-transparent" /> : initials}
               </button>
