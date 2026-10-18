@@ -9,7 +9,7 @@ export const controlStyles =
   "w-full rounded-full bg-sunken/70 text-fg-strong placeholder:text-fg-subtle/80 " +
   "shadow-[inset_0_0_0_1px_var(--color-line-2)] transition-[box-shadow,background-color] duration-150 " +
   "hover:shadow-[inset_0_0_0_1px_var(--color-line-3)] " +
-  "focus:bg-sunken focus:shadow-[inset_0_0_0_1px_rgb(1_23_255/0.75),0_0_0_3px_rgb(1_23_255/0.16)] focus:outline-none focus-visible:shadow-[inset_0_0_0_1px_rgb(215_196_133/0.6),0_0_0_3px_rgb(215_196_133/0.1)] " +
+  "focus:bg-sunken focus:shadow-[inset_0_0_0_1px_rgb(1_23_255/0.75),0_0_0_3px_rgb(1_23_255/0.16)] focus:outline-none focus-visible:shadow-[inset_0_0_0_1px_rgb(1_23_255/0.75),0_0_0_3px_rgb(1_23_255/0.16)] " +
   "aria-invalid:shadow-[inset_0_0_0_1px_rgb(224_146_143/0.6)] aria-invalid:focus:shadow-[inset_0_0_0_1px_rgb(224_146_143/0.8),0_0_0_3px_rgb(224_146_143/0.12)] " +
   "disabled:cursor-not-allowed disabled:opacity-50";
 
