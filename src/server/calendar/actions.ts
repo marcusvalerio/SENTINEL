@@ -1,6 +1,6 @@
 "use server";
 
-import { and, asc, eq } from "drizzle-orm";
+import { and, asc, eq, gte, lte } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { requireUser } from "@/server/auth/session";
 import { db } from "@/server/db/client";
@@ -28,9 +28,9 @@ function validTime(value: string) {
 
 export async function listCalendarCommitments(from?: string, to?: string): Promise<CalendarCommitment[]> {
   const user = await requireUser();
-  const filters = [eq(calendarCommitments.ownerId, user.id)];
-  if (from && validDate(from)) filters.push(eq(calendarCommitments.eventDate, from));
-  // Date range filtering is handled below with a stable inclusive range.
+  const conditions = [eq(calendarCommitments.ownerId, user.id)];
+  if (from && validDate(from)) conditions.push(gte(calendarCommitments.eventDate, from));
+  if (to && validDate(to)) conditions.push(lte(calendarCommitments.eventDate, to));
   const rows = await db
     .select({
       id: calendarCommitments.id,
@@ -43,13 +43,9 @@ export async function listCalendarCommitments(from?: string, to?: string): Promi
     })
     .from(calendarCommitments)
     .leftJoin(projects, eq(calendarCommitments.projectId, projects.id))
-    .where(and(eq(calendarCommitments.ownerId, user.id), ...(from && to && validDate(from) && validDate(to) ? [
-      // SQL date values compare lexicographically in ISO format.
-      // Drizzle's gte/lte are applied in the range-specific query below.
-    ] : [])))
+    .where(and(...conditions))
     .orderBy(asc(calendarCommitments.eventDate), asc(calendarCommitments.eventTime));
-  const filtered = rows.filter((row) => (!from || !validDate(from) || row.date >= from) && (!to || !validDate(to) || row.date <= to));
-  return filtered.map((row) => ({ ...row, projectId: row.projectId ?? null, projectName: row.projectName ?? null, notes: row.notes ?? "" }));
+  return rows.map((row) => ({ ...row, projectId: row.projectId ?? null, projectName: row.projectName ?? null, notes: row.notes ?? "" }));
 }
 
 export async function createCalendarCommitment(input: {
