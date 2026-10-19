@@ -226,14 +226,14 @@ export function AppHeader({ user, projects, inboxCount }: { user: { name: string
           })}
         </nav>
 
-        <div className="ml-auto flex items-center gap-2">
-          <button type="button" onClick={toggleTheme} className="flex size-9 items-center justify-center rounded-full text-fg-muted transition-colors hover:bg-surface-2 hover:text-fg-strong" aria-label={theme === "dark" ? "Ativar modo claro" : "Ativar modo escuro"} title={theme === "dark" ? "Modo claro" : "Modo escuro"}>
+        <div className="app-header-actions ml-auto flex items-center gap-2">
+          <button type="button" onClick={toggleTheme} className="flex size-10 items-center justify-center rounded-full text-fg-muted transition-colors hover:bg-surface-2 hover:text-fg-strong" aria-label={theme === "dark" ? "Ativar modo claro" : "Ativar modo escuro"} title={theme === "dark" ? "Modo claro" : "Modo escuro"}>
             {theme === "dark" ? <Sun className="size-4" /> : <Moon className="size-4" />}
           </button>
           <button
             type="button"
             onClick={() => setPaletteOpen(true)}
-            className="group flex h-9 items-center gap-2 rounded-full px-3 text-body-sm text-fg-subtle shadow-[inset_0_0_0_1px_var(--color-line-2)] transition-[color,box-shadow,background-color] hover:bg-surface/60 hover:text-fg-muted hover:shadow-[inset_0_0_0_1px_var(--color-line-3)] xl:w-52"
+            className="group flex h-10 items-center gap-2 rounded-full px-3 text-body-sm text-fg-subtle shadow-[inset_0_0_0_1px_var(--color-line-2)] transition-[color,box-shadow,background-color] hover:bg-surface/60 hover:text-fg-muted hover:shadow-[inset_0_0_0_1px_var(--color-line-3)] xl:w-52"
             aria-label="Abrir busca e comandos"
           >
             <Search className="size-3.5" />
@@ -266,7 +266,7 @@ export function AppHeader({ user, projects, inboxCount }: { user: { name: string
                 onClick={toggle}
                 {...aria}
                 aria-label="Conta"
-                className="flex size-9 items-center justify-center rounded-full bg-identity font-display text-[11px] font-semibold tracking-wide text-accent shadow-[inset_0_0_0_1px_rgb(215_196_133/0.25)] transition-shadow hover:shadow-[inset_0_0_0_1px_rgb(215_196_133/0.55)]"
+                className="flex size-10 items-center justify-center rounded-full bg-identity font-display text-[11px] font-semibold tracking-wide text-accent shadow-[inset_0_0_0_1px_rgb(215_196_133/0.25)] transition-shadow hover:shadow-[inset_0_0_0_1px_rgb(215_196_133/0.55)]"
               >
                 {signingOut ? <span className="size-3 animate-spin rounded-full border border-accent border-t-transparent" /> : initials}
               </button>
