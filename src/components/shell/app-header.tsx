@@ -81,12 +81,12 @@ export function AppHeader({ user, projects, inboxCount }: { user: { name: string
   const [menuOpen, setMenuOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [query, setQuery] = useState("");
-  const [theme, setTheme] = useState<"dark" | "light">("dark");
+  const [theme, setTheme] = useState<"dark" | "light">("light");
 
   useEffect(() => {
     setMounted(true);
     const saved = window.localStorage.getItem("sentinel-theme");
-    const next = saved === "light" ? "light" : "dark";
+    const next = saved === "dark" ? "dark" : "light";
     document.documentElement.dataset.theme = next;
     setTheme(next);
   }, []);
