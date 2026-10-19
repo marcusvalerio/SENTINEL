@@ -1,11 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, ClipboardList, PencilLine } from "lucide-react";
+import { ArrowDownRight, ArrowRight, ClipboardList, Command, GitBranch, Plus, Sparkles } from "lucide-react";
 import { GithubMark } from "@/components/brand/github-mark";
 import { LogoMark } from "@/components/brand/logo";
 import { CadenceStrip } from "@/components/command-center/cadence-strip";
 import { AttentionList, MilestoneAgenda, ProjectRows, RecentEvents, Section } from "@/components/command-center/sections";
-import { SummaryLine } from "@/components/command-center/summary-line";
 import { Reveal } from "@/components/motion/reveal";
 import { COLLECTION_STATUSES, type ProjectCollection } from "@/domain/project";
 import { requireUser } from "@/server/auth/session";
@@ -14,21 +13,9 @@ import { loadCommandCenter } from "@/server/intelligence/overview";
 
 export const metadata: Metadata = { title: "Command Center" };
 
-function greeting(name: string) {
-  const hour = Number(new Intl.DateTimeFormat("en-US", { hour: "numeric", hourCycle: "h23", timeZone: "America/Sao_Paulo" }).format(new Date()));
-  const part = hour < 5 ? "Boa noite" : hour < 12 ? "Bom dia" : hour < 18 ? "Boa tarde" : "Boa noite";
-  return `${part}, ${name.split(" ")[0]}.`;
-}
-
 function todayLabel() {
   return new Intl.DateTimeFormat("pt-BR", { weekday: "long", day: "numeric", month: "long", timeZone: "America/Sao_Paulo" }).format(new Date());
 }
-
-const ENTRY_PATHS = [
-  { href: "/projects/new", icon: <PencilLine />, title: "Criar manualmente", text: "Registre o nascimento de um projeto, etapa por etapa." },
-  { href: "/projects/import", icon: <GithubMark className="size-4" />, title: "Importar do GitHub", text: "Analise um repositório e comece com o contexto já preenchido." },
-  { href: "/pre-projects/new", icon: <ClipboardList />, title: "Pré-projeto", text: "Registre uma demanda antes de assumir o compromisso." },
-];
 
 export default async function CommandCenterPage() {
   const user = await requireUser();
@@ -38,108 +25,96 @@ export default async function CommandCenterPage() {
   const moving = cc.projects.filter((p) => COLLECTION_STATUSES.active.includes(p.status)).slice(0, 6);
 
   return (
-    <div className="sentinel-editorial mx-auto flex w-full max-w-[1440px] flex-col px-5 pb-24 pt-8 sm:px-8 sm:pt-10 lg:px-12">
-      <Reveal className="flex flex-col gap-5">
-        <p className="eyebrow first-letter:uppercase">{todayLabel()}</p>
-        <h1 className="text-display sm:text-hero">{greeting(user.name)}</h1>
-        {cc.projects.length > 0 && <SummaryLine active={active} attention={cc.attention.length} commits={cc.commits30d} />}
-      </Reveal>
+    <div className="sentinel-workspace mx-auto w-full max-w-[1600px] px-4 pb-20 pt-5 sm:px-7 lg:px-10">
+      <header className="workspace-topline">
+        <div className="flex items-center gap-3">
+          <span className="workspace-mark"><LogoMark className="size-7" animated={false} /></span>
+          <div><p className="workspace-brand">SENTINEL</p><p className="workspace-caption">PROJECT INTELLIGENCE</p></div>
+        </div>
+        <div className="workspace-date"><span className="workspace-live-dot" />{todayLabel()}</div>
+      </header>
+
+      <div className="workspace-intro">
+        <div className="workspace-intro-copy">
+          <p className="workspace-overline">SEU ESPAÇO DE TRABALHO</p>
+          <h1>Ideias em movimento.<br /><span>Projetos com memória.</span></h1>
+          <p className="workspace-lede">Um lugar para organizar o que você está construindo, entender o que vem depois e não perder o fio das decisões.</p>
+        </div>
+        <div className="workspace-intro-art" aria-hidden="true">
+          <div className="workspace-art-grid" />
+          <div className="workspace-art-orbit workspace-art-orbit-one" />
+          <div className="workspace-art-orbit workspace-art-orbit-two" />
+          <LogoMark className="workspace-art-logo" animated={false} />
+          <span className="workspace-art-index">SV / 001</span>
+        </div>
+      </div>
+
+      <nav className="workspace-actions" aria-label="Ações rápidas">
+        <Link href="/projects/new" className="workspace-action workspace-action-primary"><Plus size={16} /> Novo projeto <ArrowRight size={15} /></Link>
+        <Link href="/projects/import" className="workspace-action"><GithubMark className="size-4" /> Conectar repositório</Link>
+        <Link href="/pre-projects/new" className="workspace-action"><ClipboardList size={16} /> Registrar demanda</Link>
+        <Link href="/inbox" className="workspace-action workspace-action-quiet"><Sparkles size={15} /> Capturar uma ideia <ArrowDownRight size={14} /></Link>
+      </nav>
 
       {cc.projects.length === 0 ? (
-        <Reveal delay={0.1} className="mt-10 flex flex-col gap-8">
-          <div className="rule-fade" />
-          <div className="flex flex-col gap-2">
-            <h2 className="text-h2">Seu espaço está pronto.</h2>
-            <p className="max-w-[56ch] text-body text-fg-muted">Tudo o que você criar a partir de agora terá contexto, história e memória. Por onde começamos?</p>
+        <section className="workspace-first-project">
+          <div className="workspace-first-index"><Command size={16} /> PRIMEIRO PASSO</div>
+          <h2>Comece por algo que importa.</h2>
+          <p>Crie um projeto ou conecte um repositório. O SENTINEL organiza o contexto para que o trabalho não dependa só da sua memória.</p>
+          <div className="workspace-first-links">
+            <Link href="/projects/new">Criar projeto <ArrowRight size={15} /></Link>
+            <Link href="/projects/import">Importar do GitHub <ArrowRight size={15} /></Link>
           </div>
-          <ul className="grid gap-px overflow-hidden rounded-xl bg-line sm:grid-cols-3">
-            {ENTRY_PATHS.map((p) => (
-              <li key={p.href} className="bg-canvas">
-                <Link href={p.href} className="group row-hover flex h-full flex-col gap-3 p-6">
-                  <span className="text-accent [&_svg]:size-4">{p.icon}</span>
-                  <span className="font-display text-h4 font-medium text-fg-strong">{p.title}</span>
-                  <span className="text-body-sm text-fg-muted">{p.text}</span>
-                  <ArrowRight className="mt-auto size-4 text-fg-subtle transition-transform duration-200 group-hover:translate-x-1 group-hover:text-accent" aria-hidden />
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </Reveal>
+        </section>
       ) : (
-        <div className="mt-9 grid gap-x-10 gap-y-10 lg:grid-cols-[minmax(0,1fr)_330px]">
-          <div className="editorial-column flex min-w-0 flex-col gap-10">
-            <Reveal delay={0.08}>
-              <Section title="O que precisa da sua atenção" id="attention">
-                <AttentionList
-                  items={cc.attention.slice(0, 8)}
-                  empty={
-                    <p className="flex items-center gap-3 text-body text-fg-muted">
-                      <span className="size-1.5 rounded-full bg-success" aria-hidden />
-                      Nada pede sua atenção agora. Todos os sinais estão calmos.
-                    </p>
-                  }
-                />
-              </Section>
-            </Reveal>
+        <>
+          <section className="workspace-overview" aria-label="Resumo do trabalho">
+            <div className="workspace-overview-lead"><span>VISÃO GERAL</span><strong>O trabalho, sem perder o contexto.</strong></div>
+            <Link href="/projects?view=active" className="workspace-metric"><span>Em andamento</span><strong>{active.toString().padStart(2, "0")}</strong><small>projetos ativos <ArrowRight size={12} /></small></Link>
+            <Link href="/inbox" className="workspace-metric"><span>Ideias capturadas</span><strong>{inbox.toString().padStart(2, "0")}</strong><small>na sua inbox <ArrowRight size={12} /></small></Link>
+            <Link href="/pre-projects" className="workspace-metric"><span>Na fila</span><strong>{cc.pipeline.toString().padStart(2, "0")}</strong><small>pré-projetos <ArrowRight size={12} /></small></Link>
+          </section>
 
-            <Reveal delay={0.14}>
-              <Section
-                title="Em movimento"
-                id="moving"
-                action={
-                  <Link href="/projects" className="group flex items-center gap-1.5 text-caption tracking-normal text-fg-muted hover:text-fg-strong">
-                    Todos os projetos
-                    <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-0.5" aria-hidden />
-                  </Link>
-                }
-              >
-                {moving.length ? <ProjectRows items={moving} /> : <p className="text-body-sm text-fg-subtle">Nenhum projeto ativo no momento.</p>}
-              </Section>
-            </Reveal>
-          </div>
+          <div className="workspace-main-grid">
+            <main className="workspace-primary">
+              <section className="workspace-project-area">
+                <div className="workspace-section-heading">
+                  <div><p className="workspace-overline">PORTFÓLIO ATIVO</p><h2>O que está em movimento</h2></div>
+                  <Link href="/projects" className="workspace-text-link">Ver todos <ArrowRight size={14} /></Link>
+                </div>
+                {moving.length ? <div className="workspace-project-list"><ProjectRows items={moving} /></div> : <div className="workspace-empty-inline">Nenhum projeto ativo por enquanto. Use “Novo projeto” para começar.</div>}
+              </section>
 
-          <aside className="editorial-column flex min-w-0 flex-col gap-9">
-            <Reveal delay={0.1}>
-              <Section title="Universo" id="universe">
-                <dl className="grid grid-cols-3 gap-y-6">
-                  {[
-                    { label: "Ativos", value: active, href: "/projects?view=active" },
-                    { label: "Em pausa", value: count("paused"), href: "/projects?view=paused" },
-                    { label: "Concluídos", value: count("completed"), href: "/projects?view=completed" },
-                    { label: "Pré-projetos", value: cc.pipeline, href: "/pre-projects" },
-                    { label: "Ideias na Inbox", value: inbox, href: "/inbox" },
-                    { label: "Arquivados", value: count("archived"), href: "/projects?view=archived" },
-                  ].map((item) => (
-                    <Link key={item.label} href={item.href} className="group flex flex-col gap-1">
-                      <dd className={`font-numeric font-display text-h1 leading-none font-normal tracking-[-0.03em] transition-colors group-hover:text-accent ${item.value ? "text-fg-strong" : "text-fg-subtle/60"}`}>{item.value}</dd>
-                      <dt className="text-caption tracking-normal text-fg-subtle">{item.label}</dt>
-                    </Link>
-                  ))}
-                </dl>
-              </Section>
-            </Reveal>
-
-            <Reveal delay={0.16}>
-              <Section title="Desenvolvimento · 30 dias" id="dev">
-                <CadenceStrip days={cc.cadence} />
-                <p className="text-caption tracking-normal text-fg-subtle">Commits sincronizados de todos os repositórios. Atividade — não progresso.</p>
-              </Section>
-            </Reveal>
-
-            <Reveal delay={0.2}>
-              <Section title="Próximos milestones" id="milestones">
-                <MilestoneAgenda items={cc.milestones} />
-              </Section>
-            </Reveal>
-
-            <Reveal delay={0.24}>
-              <Section title="Atividade recente" id="recent">
+              <section className="workspace-activity-area">
+                <div className="workspace-section-heading">
+                  <div><p className="workspace-overline">RITMO DE CONSTRUÇÃO</p><h2>Atividade recente</h2></div>
+                  <span className="workspace-period"><GitBranch size={13} /> últimos 30 dias</span>
+                </div>
+                <div className="workspace-cadence"><CadenceStrip days={cc.cadence} /><p>Commits sincronizados dos repositórios conectados. Atividade não significa, necessariamente, progresso.</p></div>
                 <RecentEvents items={cc.events} />
-              </Section>
-            </Reveal>
-          </aside>
-        </div>
+              </section>
+            </main>
+
+            <aside className="workspace-rail">
+              <section className="workspace-attention">
+                <div className="workspace-rail-heading"><span className="workspace-rail-icon"><Sparkles size={15} /></span><div><p className="workspace-overline">SINAIS DO SISTEMA</p><h2>Atenção necessária</h2></div></div>
+                <AttentionList items={cc.attention.slice(0, 8)} empty={<p className="workspace-calm"><span />Tudo tranquilo por aqui. Nenhum item precisa da sua atenção agora.</p>} />
+              </section>
+              <section className="workspace-milestones">
+                <div className="workspace-rail-heading"><span className="workspace-rail-icon"><ArrowDownRight size={15} /></span><div><p className="workspace-overline">PRÓXIMOS PASSOS</p><h2>Marcos e entregas</h2></div></div>
+                <MilestoneAgenda items={cc.milestones} />
+              </section>
+              <section className="workspace-universe">
+                <p className="workspace-overline">SEU UNIVERSO</p>
+                <div className="workspace-universe-grid">
+                  {[{label:"Em pausa",value:count("paused"),href:"/projects?view=paused"},{label:"Concluídos",value:count("completed"),href:"/projects?view=completed"},{label:"Arquivados",value:count("archived"),href:"/projects?view=archived"}].map((item)=><Link href={item.href} key={item.label}><strong>{item.value}</strong><span>{item.label}</span></Link>)}
+                </div>
+              </section>
+            </aside>
+          </div>
+        </>
       )}
+      <footer className="workspace-footer"><span>SENTINEL / MEMÓRIA OPERACIONAL</span><span>Seu trabalho, conectado ao seu contexto.</span></footer>
     </div>
   );
 }
