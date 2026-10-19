@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, ClipboardList, PencilLine } from "lucide-react";
 import { GithubMark } from "@/components/brand/github-mark";
+import { LogoMark } from "@/components/brand/logo";
 import { CadenceStrip } from "@/components/command-center/cadence-strip";
 import { AttentionList, MilestoneAgenda, ProjectRows, RecentEvents, Section } from "@/components/command-center/sections";
 import { SummaryLine } from "@/components/command-center/summary-line";
@@ -37,7 +38,7 @@ export default async function CommandCenterPage() {
   const moving = cc.projects.filter((p) => COLLECTION_STATUSES.active.includes(p.status)).slice(0, 6);
 
   return (
-    <div className="mx-auto flex w-full max-w-[1280px] flex-col px-4 pt-12 pb-28 sm:px-6 sm:pt-16 lg:px-8">
+    <div className="sentinel-editorial mx-auto flex w-full max-w-[1440px] flex-col px-5 pb-24 pt-8 sm:px-8 sm:pt-10 lg:px-12">
       <Reveal className="flex flex-col gap-5">
         <p className="eyebrow first-letter:uppercase">{todayLabel()}</p>
         <h1 className="text-display sm:text-hero">{greeting(user.name)}</h1>
@@ -45,7 +46,7 @@ export default async function CommandCenterPage() {
       </Reveal>
 
       {cc.projects.length === 0 ? (
-        <Reveal delay={0.1} className="mt-16 flex flex-col gap-8">
+        <Reveal delay={0.1} className="mt-10 flex flex-col gap-8">
           <div className="rule-fade" />
           <div className="flex flex-col gap-2">
             <h2 className="text-h2">Seu espaço está pronto.</h2>
@@ -65,8 +66,8 @@ export default async function CommandCenterPage() {
           </ul>
         </Reveal>
       ) : (
-        <div className="mt-14 grid gap-x-16 gap-y-14 lg:grid-cols-[minmax(0,1fr)_360px]">
-          <div className="flex min-w-0 flex-col gap-14">
+        <div className="mt-9 grid gap-x-10 gap-y-10 lg:grid-cols-[minmax(0,1fr)_330px]">
+          <div className="editorial-column flex min-w-0 flex-col gap-10">
             <Reveal delay={0.08}>
               <Section title="O que precisa da sua atenção" id="attention">
                 <AttentionList
@@ -97,7 +98,7 @@ export default async function CommandCenterPage() {
             </Reveal>
           </div>
 
-          <aside className="flex min-w-0 flex-col gap-12">
+          <aside className="editorial-column flex min-w-0 flex-col gap-9">
             <Reveal delay={0.1}>
               <Section title="Universo" id="universe">
                 <dl className="grid grid-cols-3 gap-y-6">
