@@ -60,7 +60,7 @@ export async function createCalendarCommitment(input: {
   if (!title || title.length > 180 || !validDate(input.date) || !validTime(input.time)) {
     throw new Error("Confira o título, a data e o horário do compromisso.");
   }
-  let projectId: string | null = input.projectId || null;
+  const projectId: string | null = input.projectId || null;
   if (projectId) {
     const [ownedProject] = await db.select({ id: projects.id }).from(projects)
       .where(and(eq(projects.id, projectId), eq(projects.ownerId, user.id))).limit(1);
