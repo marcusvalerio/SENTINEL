@@ -4,8 +4,7 @@ import { ArrowDownRight, ArrowRight, ClipboardList, Command, GitBranch, Plus, Sp
 import { GithubMark } from "@/components/brand/github-mark";
 import { LogoMark } from "@/components/brand/logo";
 import { CadenceStrip } from "@/components/command-center/cadence-strip";
-import { AttentionList, MilestoneAgenda, ProjectRows, RecentEvents, Section } from "@/components/command-center/sections";
-import { Reveal } from "@/components/motion/reveal";
+import { AttentionList, MilestoneAgenda, ProjectRows, RecentEvents } from "@/components/command-center/sections";
 import { COLLECTION_STATUSES, type ProjectCollection } from "@/domain/project";
 import { requireUser } from "@/server/auth/session";
 import { countInbox } from "@/server/ideas/queries";
