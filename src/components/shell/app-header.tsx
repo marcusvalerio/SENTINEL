@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { AnimatePresence, motion } from "motion/react";
 import { usePathname, useRouter } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState, useTransition, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useState, useSyncExternalStore, useTransition, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import {
   Activity,
@@ -71,6 +71,30 @@ const NAV_ICONS: Record<string, ReactNode> = {
   "/memory": <Brain />,
 };
 
+const THEME_CHANGE_EVENT = "sentinel:theme-change";
+
+function subscribeTheme(onStoreChange: () => void) {
+  window.addEventListener("storage", onStoreChange);
+  window.addEventListener(THEME_CHANGE_EVENT, onStoreChange);
+  return () => {
+    window.removeEventListener("storage", onStoreChange);
+    window.removeEventListener(THEME_CHANGE_EVENT, onStoreChange);
+  };
+}
+
+function getThemeSnapshot(): "dark" | "light" {
+  try {
+    return window.localStorage.getItem("sentinel-theme") === "dark" ? "dark" : "light";
+  } catch {
+    return "light";
+  }
+}
+
+const getServerThemeSnapshot = () => "light" as const;
+const subscribeMounted = () => () => {};
+const getMountedSnapshot = () => true;
+const getServerMountedSnapshot = () => false;
+
 type ProjectIndexItem = { id: string; name: string; codename: string | null; status: ProjectStatus };
 
 export function AppHeader({ user, projects, inboxCount }: { user: { name: string; email: string }; projects: ProjectIndexItem[]; inboxCount: number }) {
@@ -79,23 +103,23 @@ export function AppHeader({ user, projects, inboxCount }: { user: { name: string
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [captureOpen, setCaptureOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [mounted, setMounted] = useState(false);
+  const mounted = useSyncExternalStore(subscribeMounted, getMountedSnapshot, getServerMountedSnapshot);
   const [query, setQuery] = useState("");
-  const [theme, setTheme] = useState<"dark" | "light">("dark");
+  const theme = useSyncExternalStore(subscribeTheme, getThemeSnapshot, getServerThemeSnapshot);
 
   useEffect(() => {
-    setMounted(true);
-    const saved = window.localStorage.getItem("sentinel-theme");
-    const next = saved === "light" ? "light" : "dark";
-    document.documentElement.dataset.theme = next;
-    setTheme(next);
-  }, []);
+    document.documentElement.dataset.theme = theme;
+  }, [theme]);
 
   const toggleTheme = useCallback(() => {
     const next = theme === "dark" ? "light" : "dark";
     document.documentElement.dataset.theme = next;
-    window.localStorage.setItem("sentinel-theme", next);
-    setTheme(next);
+    try {
+      window.localStorage.setItem("sentinel-theme", next);
+    } catch {
+      // Theme still changes for this session if storage is unavailable.
+    }
+    window.dispatchEvent(new Event(THEME_CHANGE_EVENT));
   }, [theme]);
   const { result, loading, search } = useGlobalSearch();
   const [signingOut, startSignOut] = useTransition();
@@ -201,14 +225,14 @@ export function AppHeader({ user, projects, inboxCount }: { user: { name: string
   return (
     <header className="sticky top-0 z-[var(--z-header)] border-b border-line bg-canvas/80 backdrop-blur-xl backdrop-saturate-150">
       <div className="mx-auto flex h-14 max-w-[1280px] items-center gap-2 px-4 sm:px-6 lg:px-8">
-        <button type="button" onClick={() => setMenuOpen((open) => !open)} className="-ml-1.5 flex size-10 items-center justify-center rounded-full text-fg-muted transition-colors hover:bg-surface-2 hover:text-fg-strong lg:hidden" aria-label="Abrir navegação" aria-expanded={menuOpen}>
+        <button type="button" onClick={() => setMenuOpen((open) => !open)} className="-ml-1.5 flex size-10 items-center justify-center rounded-full text-fg-muted transition-colors hover:bg-surface-2 hover:text-fg-strong xl:hidden" aria-label="Abrir navegação" aria-expanded={menuOpen}>
           <Menu className="size-5" />
         </button>
-        <Link href="/" className="-ml-1 flex items-center rounded-md px-1 py-1" aria-label="SENTINEL — Command Center">
+        <Link href="/" className="app-header-brand -ml-1 flex items-center rounded-md px-1 py-1" aria-label="SENTINEL — Command Center">
           <Wordmark />
         </Link>
 
-        <nav aria-label="Principal" className="ml-5 hidden items-center lg:flex">
+        <nav aria-label="Principal" className="ml-5 hidden items-center xl:flex">
           {PRIMARY_NAV.map((item) => {
             const active = item.match(pathname);
             return (
@@ -226,14 +250,14 @@ export function AppHeader({ user, projects, inboxCount }: { user: { name: string
           })}
         </nav>
 
-        <div className="ml-auto flex items-center gap-2">
-          <button type="button" onClick={toggleTheme} className="flex size-9 items-center justify-center rounded-full text-fg-muted transition-colors hover:bg-surface-2 hover:text-fg-strong" aria-label={theme === "dark" ? "Ativar modo claro" : "Ativar modo escuro"} title={theme === "dark" ? "Modo claro" : "Modo escuro"}>
+        <div className="app-header-actions ml-auto flex items-center gap-2">
+          <button type="button" onClick={toggleTheme} className="flex size-10 items-center justify-center rounded-full text-fg-muted transition-colors hover:bg-surface-2 hover:text-fg-strong" aria-label={theme === "dark" ? "Ativar modo claro" : "Ativar modo escuro"} title={theme === "dark" ? "Modo claro" : "Modo escuro"}>
             {theme === "dark" ? <Sun className="size-4" /> : <Moon className="size-4" />}
           </button>
           <button
             type="button"
             onClick={() => setPaletteOpen(true)}
-            className="group flex h-9 items-center gap-2 rounded-full px-3 text-body-sm text-fg-subtle shadow-[inset_0_0_0_1px_var(--color-line-2)] transition-[color,box-shadow,background-color] hover:bg-surface/60 hover:text-fg-muted hover:shadow-[inset_0_0_0_1px_var(--color-line-3)] xl:w-52"
+            className="group flex h-10 items-center gap-2 rounded-full px-3 text-body-sm text-fg-subtle shadow-[inset_0_0_0_1px_var(--color-line-2)] transition-[color,box-shadow,background-color] hover:bg-surface/60 hover:text-fg-muted hover:shadow-[inset_0_0_0_1px_var(--color-line-3)] xl:w-52"
             aria-label="Abrir busca e comandos"
           >
             <Search className="size-3.5" />
@@ -266,7 +290,7 @@ export function AppHeader({ user, projects, inboxCount }: { user: { name: string
                 onClick={toggle}
                 {...aria}
                 aria-label="Conta"
-                className="flex size-9 items-center justify-center rounded-full bg-identity font-display text-[11px] font-semibold tracking-wide text-accent shadow-[inset_0_0_0_1px_rgb(215_196_133/0.25)] transition-shadow hover:shadow-[inset_0_0_0_1px_rgb(215_196_133/0.55)]"
+                className="flex size-10 items-center justify-center rounded-full bg-identity font-display text-[11px] font-semibold tracking-wide text-accent shadow-[inset_0_0_0_1px_rgb(215_196_133/0.25)] transition-shadow hover:shadow-[inset_0_0_0_1px_rgb(215_196_133/0.55)]"
               >
                 {signingOut ? <span className="size-3 animate-spin rounded-full border border-accent border-t-transparent" /> : initials}
               </button>
@@ -279,7 +303,7 @@ export function AppHeader({ user, projects, inboxCount }: { user: { name: string
       {/* Mobile navigation sheet */}
       {mounted && createPortal(
         <AnimatePresence>
-          {menuOpen && <div className="fixed inset-0 z-[100] lg:hidden" style={{ isolation: "isolate" }}>
+          {menuOpen && <div className="fixed inset-0 z-[100] xl:hidden" style={{ isolation: "isolate" }}>
             <motion.div className="absolute inset-0 bg-[rgb(10_11_14/0.7)]" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setMenuOpen(false)} aria-hidden />
             <motion.nav
               aria-label="Principal"

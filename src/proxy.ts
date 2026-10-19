@@ -40,5 +40,5 @@ export function proxy(request: NextRequest) {
 
 export const config = {
   // brand/ holds public brand media used by the login page itself.
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|icon.svg|robots.txt|brand/).*)"],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico|icon.svg|apple-icon(?:\\.png)?|manifest\\.webmanifest|robots.txt|brand/).*)"],
 };
