@@ -24,9 +24,15 @@ export const viewport: Viewport = {
   colorScheme: "dark light",
 };
 
+// Runs before first paint so a saved light theme never flashes dark. Keep in sync with app-header.tsx.
+const THEME_BOOTSTRAP = `(function(){var t="dark";try{if(localStorage.getItem("sentinel-theme")==="light")t="light"}catch(e){}document.documentElement.dataset.theme=t})()`;
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="pt-BR" className={`${geist.variable} ${inter.variable} ${roboto.variable} ${mono.variable}`}>
+    <html lang="pt-BR" suppressHydrationWarning className={`${geist.variable} ${inter.variable} ${roboto.variable} ${mono.variable}`}>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_BOOTSTRAP }} />
+      </head>
       <body>
         <a
           href="#main"

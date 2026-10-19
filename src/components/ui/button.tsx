@@ -17,7 +17,7 @@ const variants: Record<ButtonVariant, string> = {
   primary:
     "rounded-full border-2 border-accent bg-accent text-[#F5F4F0] shadow-none hover:border-[#202124] hover:bg-[#202124]",
   secondary:
-    "rounded-full border-2 border-accent bg-transparent text-accent shadow-none hover:bg-accent hover:text-[#F5F4F0]",
+    "rounded-full border-2 border-accent bg-transparent text-accent-fg shadow-none hover:bg-accent hover:text-[#F5F4F0]",
   ghost: "rounded-full text-fg-muted hover:bg-surface-2 hover:text-fg-strong",
   danger:
     "rounded-full border border-danger/30 bg-danger-soft text-danger shadow-none hover:bg-[rgb(224_146_143/0.16)]",

@@ -39,7 +39,7 @@ function StatusGlyph({ status }: { status: FeatureStatus }) {
         <Check className="size-2.5 stroke-[3]" />
       </span>
     );
-  if (status === "in_progress") return <CircleDashed className="size-4 text-[#93a6d8]" />;
+  if (status === "in_progress") return <CircleDashed className="size-4 text-status-planning" />;
   return <Circle className="size-4 text-fg-subtle" />;
 }
 
@@ -70,7 +70,7 @@ export function HorizonBoard({ projectId, items, milestones }: { projectId: stri
             <section key={h} aria-labelledby={`h-${h}`} className={cn("flex min-w-0 flex-col gap-4 md:px-5", index % 2 === 1 && "md:border-l md:border-line", index > 0 && "xl:border-l xl:border-line", index === 0 && "md:pl-0", index === 3 && "xl:pr-0")}>
               <header className="flex flex-col gap-1">
                 <div className="flex items-baseline justify-between gap-2">
-                  <h2 id={`h-${h}`} className={cn("font-display text-h4 font-semibold tracking-[-0.01em]", h === "now" ? "text-accent" : "text-fg-strong")}>
+                  <h2 id={`h-${h}`} className={cn("font-display text-h4 font-semibold tracking-[-0.01em]", h === "now" ? "text-accent-fg" : "text-fg-strong")}>
                     {HORIZON_LABELS[h]}
                   </h2>
                   <span className="font-numeric text-caption tracking-normal text-fg-subtle">{column.length}</span>
@@ -215,7 +215,7 @@ function QuickAdd({ projectId, horizon }: { projectId: string; horizon: Horizon 
         onBlur={() => !name.trim() && setOpen(false)}
         placeholder="Nome do item"
         aria-label={`Novo item em ${HORIZON_LABELS[horizon]}`}
-        className="h-9 w-full rounded-sm bg-surface-2/70 px-3 text-body-sm text-fg-strong shadow-[inset_0_0_0_1px_var(--color-line-2)] outline-none placeholder:text-fg-subtle focus:shadow-[inset_0_0_0_1px_rgb(215_196_133/0.5)]"
+        className="h-9 w-full rounded-sm bg-surface-2/70 px-3 text-body-sm text-fg-strong shadow-[inset_0_0_0_1px_var(--color-line-2)] outline-none placeholder:text-fg-subtle focus:shadow-[inset_0_0_0_1px_rgb(111_145_255/0.5)]"
       />
       <span className="text-caption tracking-normal text-fg-subtle">{saving ? "Salvando…" : "Enter para adicionar · Esc para fechar"}</span>
     </form>

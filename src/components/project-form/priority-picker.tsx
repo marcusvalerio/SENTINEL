@@ -6,7 +6,7 @@ import { cn } from "@/lib/cn";
 
 export const PRIORITY_TONE: Record<FeaturePriority, string> = {
   essential: "bg-accent",
-  important: "bg-[#93a6d8]",
+  important: "bg-status-planning",
   desirable: "bg-fg-subtle",
 };
 

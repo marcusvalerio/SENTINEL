@@ -30,7 +30,7 @@ const STATE: Record<string, { label: string; icon: ReactNode; tone: string }> = 
   draft: { label: "Rascunho", icon: <GitPullRequestDraft />, tone: "text-fg-muted" },
   merged: { label: "Integrado", icon: <GitMerge />, tone: "text-[#b9a6e8]" },
   closed: { label: "Fechado", icon: <GitPullRequestClosed />, tone: "text-danger" },
-  published: { label: "Publicada", icon: <Tag />, tone: "text-accent" },
+  published: { label: "Publicada", icon: <Tag />, tone: "text-accent-fg" },
   prerelease: { label: "Pré-release", icon: <Tag />, tone: "text-warning" },
 };
 

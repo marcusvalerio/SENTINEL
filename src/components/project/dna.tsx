@@ -66,8 +66,8 @@ export function StackList({ stack }: { stack: StackItem[] }) {
 
 export function RepositoryLine({ owner, name, href }: { owner: string; name: string; href: string }) {
   return (
-    <Link href={href} className="group flex items-center gap-2 text-body-sm text-fg transition-colors hover:text-accent">
-      <GithubMark className="size-3.5 text-fg-muted group-hover:text-accent" />
+    <Link href={href} className="group flex items-center gap-2 text-body-sm text-fg transition-colors hover:text-accent-fg">
+      <GithubMark className="size-3.5 text-fg-muted group-hover:text-accent-fg" />
       <span className="truncate font-mono text-[0.8125rem]">
         {owner}/{name}
       </span>

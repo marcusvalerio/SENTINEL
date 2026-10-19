@@ -102,7 +102,7 @@ export function ConnectRepository({ projectId, projectName, replacing, onCancel 
         </div>
         <ol className="hidden items-center gap-2 font-mono text-[0.625rem] tracking-[0.08em] uppercase sm:flex" aria-label="Etapas">
           {(["find", "pick", "confirm"] as Step[]).map((s, i) => (
-            <li key={s} className={cn("flex items-center gap-2", step === s ? "text-accent" : "text-fg-subtle")}>
+            <li key={s} className={cn("flex items-center gap-2", step === s ? "text-accent-fg" : "text-fg-subtle")}>
               {i > 0 && <span className="h-px w-3 bg-line-3" aria-hidden />}
               {["Buscar", "Escolher", "Confirmar"][i]}
             </li>

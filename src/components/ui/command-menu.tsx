@@ -171,7 +171,7 @@ export function CommandMenu({
                         className={cn("relative flex min-h-10 cursor-pointer items-center gap-3 rounded-sm px-2.5 py-2 text-body-sm [&_svg]:size-4", selected ? "bg-surface-3 text-fg-strong" : "text-fg")}
                       >
                         {selected && <span className="absolute inset-y-2 left-0 w-[2px] rounded-full bg-accent" aria-hidden />}
-                        {item.icon && <span className={cn("shrink-0", selected ? "text-accent" : "text-fg-subtle")}>{item.icon}</span>}
+                        {item.icon && <span className={cn("shrink-0", selected ? "text-accent-fg" : "text-fg-subtle")}>{item.icon}</span>}
                         <span className="flex min-w-0 flex-1 flex-col">
                           <span className="truncate">{item.label}</span>
                           {item.description && <span className="truncate text-caption tracking-normal text-fg-subtle">{item.description}</span>}

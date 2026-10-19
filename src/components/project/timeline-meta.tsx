@@ -70,8 +70,8 @@ export const TIMELINE_EMPHASIS: HistoryIcon[] = ["created", "milestone", "releas
 /** Each origin carries a quiet hue so a long history can be scanned by source. */
 export const ORIGIN_TONE: Record<TimelineOrigin, { dot: string; text: string; ring: string }> = {
   project: { dot: "bg-fg-muted", text: "text-fg-muted", ring: "shadow-[inset_0_0_0_1px_var(--color-line-3)]" },
-  rubrica: { dot: "bg-accent", text: "text-accent", ring: "shadow-[inset_0_0_0_1px_rgb(215_196_133/0.4)]" },
-  development: { dot: "bg-[#7fb0e8]", text: "text-[#9fc4ee]", ring: "shadow-[inset_0_0_0_1px_rgb(127_176_232/0.4)]" },
+  rubrica: { dot: "bg-accent", text: "text-accent-fg", ring: "shadow-[inset_0_0_0_1px_rgb(111_145_255/0.4)]" },
+  development: { dot: "bg-status-development", text: "text-status-development", ring: "shadow-[inset_0_0_0_1px_rgb(127_176_232/0.4)]" },
   milestone: { dot: "bg-success", text: "text-success", ring: "shadow-[inset_0_0_0_1px_rgb(134_185_156/0.4)]" },
-  decision: { dot: "bg-gold", text: "text-gold", ring: "shadow-[inset_0_0_0_1px_rgb(181_158_95/0.45)]" },
+  decision: { dot: "bg-warning", text: "text-warning", ring: "shadow-[inset_0_0_0_1px_rgb(215_177_107/0.45)]" },
 };

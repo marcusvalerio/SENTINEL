@@ -55,10 +55,10 @@ export default async function CommandCenterPage() {
             {ENTRY_PATHS.map((p) => (
               <li key={p.href} className="bg-canvas">
                 <Link href={p.href} className="group row-hover flex h-full flex-col gap-3 p-6">
-                  <span className="text-accent [&_svg]:size-4">{p.icon}</span>
+                  <span className="text-accent-fg [&_svg]:size-4">{p.icon}</span>
                   <span className="font-display text-h4 font-medium text-fg-strong">{p.title}</span>
                   <span className="text-body-sm text-fg-muted">{p.text}</span>
-                  <ArrowRight className="mt-auto size-4 text-fg-subtle transition-transform duration-200 group-hover:translate-x-1 group-hover:text-accent" aria-hidden />
+                  <ArrowRight className="mt-auto size-4 text-fg-subtle transition-transform duration-200 group-hover:translate-x-1 group-hover:text-accent-fg" aria-hidden />
                 </Link>
               </li>
             ))}
@@ -110,7 +110,7 @@ export default async function CommandCenterPage() {
                     { label: "Arquivados", value: count("archived"), href: "/projects?view=archived" },
                   ].map((item) => (
                     <Link key={item.label} href={item.href} className="group flex flex-col gap-1">
-                      <dd className={`font-numeric font-display text-h1 leading-none font-normal tracking-[-0.03em] transition-colors group-hover:text-accent ${item.value ? "text-fg-strong" : "text-fg-subtle/60"}`}>{item.value}</dd>
+                      <dd className={`font-numeric font-display text-h1 leading-none font-normal tracking-[-0.03em] transition-colors group-hover:text-accent-fg ${item.value ? "text-fg-strong" : "text-fg-subtle/60"}`}>{item.value}</dd>
                       <dt className="text-caption tracking-normal text-fg-subtle">{item.label}</dt>
                     </Link>
                   ))}

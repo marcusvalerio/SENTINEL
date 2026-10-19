@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { AnimatePresence, motion } from "motion/react";
 import { usePathname, useRouter } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState, useTransition, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useState, useSyncExternalStore, useTransition, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import {
   Activity,
@@ -71,7 +71,25 @@ const NAV_ICONS: Record<string, ReactNode> = {
   "/memory": <Brain />,
 };
 
-type ProjectIndexItem = { id: string; name: string; codename: string | null; status: ProjectStatus };
+const THEME_STORAGE_KEY = "sentinel-theme";
+const themeListeners = new Set<() => void>();
+
+function subscribeTheme(listener: () => void) {
+  themeListeners.add(listener);
+  return () => {
+    themeListeners.delete(listener);
+  };
+}
+
+function subscribeNever() {
+  return () => {};
+}
+
+function readTheme(): "dark" | "light" {
+  return document.documentElement.dataset.theme === "light" ? "light" : "dark";
+}
+
+type ProjectIndexItem ={ id: string; name: string; codename: string | null; status: ProjectStatus };
 
 export function AppHeader({ user, projects, inboxCount }: { user: { name: string; email: string }; projects: ProjectIndexItem[]; inboxCount: number }) {
   const router = useRouter();
@@ -79,24 +97,22 @@ export function AppHeader({ user, projects, inboxCount }: { user: { name: string
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [captureOpen, setCaptureOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [mounted, setMounted] = useState(false);
+  // false on the server and during hydration, true afterwards (portals need a client DOM).
+  const mounted = useSyncExternalStore(subscribeNever, () => true, () => false);
   const [query, setQuery] = useState("");
-  const [theme, setTheme] = useState<"dark" | "light">("dark");
-
-  useEffect(() => {
-    setMounted(true);
-    const saved = window.localStorage.getItem("sentinel-theme");
-    const next = saved === "light" ? "light" : "dark";
-    document.documentElement.dataset.theme = next;
-    setTheme(next);
-  }, []);
+  // The theme lives on <html data-theme>, set before first paint by the inline script in layout.tsx.
+  const theme = useSyncExternalStore(subscribeTheme, readTheme, () => "dark" as const);
 
   const toggleTheme = useCallback(() => {
-    const next = theme === "dark" ? "light" : "dark";
+    const next = readTheme() === "dark" ? "light" : "dark";
     document.documentElement.dataset.theme = next;
-    window.localStorage.setItem("sentinel-theme", next);
-    setTheme(next);
-  }, [theme]);
+    try {
+      window.localStorage.setItem(THEME_STORAGE_KEY, next);
+    } catch {
+      // Storage can be blocked (private mode); the theme still applies for this session.
+    }
+    themeListeners.forEach((listener) => listener());
+  }, []);
   const { result, loading, search } = useGlobalSearch();
   const [signingOut, startSignOut] = useTransition();
   const isMac = useIsMac();
@@ -220,7 +236,7 @@ export function AppHeader({ user, projects, inboxCount }: { user: { name: string
               >
                 {active && <motion.span layoutId="nav-active" className="absolute inset-0 rounded-full bg-surface-2/80 shadow-[inset_0_0_0_1px_var(--color-line)]" transition={{ type: "spring", stiffness: 500, damping: 40 }} />}
                 <span className="relative">{item.label}</span>
-                {item.href === "/inbox" && inboxCount > 0 && <span className="font-numeric relative rounded-full bg-accent-soft px-1.5 text-[0.625rem] leading-4 text-accent">{inboxCount}</span>}
+                {item.href === "/inbox" && inboxCount > 0 && <span className="font-numeric relative rounded-full bg-accent-soft px-1.5 text-[0.625rem] leading-4 text-accent-fg">{inboxCount}</span>}
               </Link>
             );
           })}
@@ -266,7 +282,7 @@ export function AppHeader({ user, projects, inboxCount }: { user: { name: string
                 onClick={toggle}
                 {...aria}
                 aria-label="Conta"
-                className="flex size-9 items-center justify-center rounded-full bg-identity font-display text-[11px] font-semibold tracking-wide text-accent shadow-[inset_0_0_0_1px_rgb(215_196_133/0.25)] transition-shadow hover:shadow-[inset_0_0_0_1px_rgb(215_196_133/0.55)]"
+                className="flex size-9 items-center justify-center rounded-full bg-identity font-display text-[11px] font-semibold tracking-wide text-accent-fg shadow-[inset_0_0_0_1px_rgb(111_145_255/0.25)] transition-shadow hover:shadow-[inset_0_0_0_1px_rgb(111_145_255/0.55)]"
               >
                 {signingOut ? <span className="size-3 animate-spin rounded-full border border-accent border-t-transparent" /> : initials}
               </button>
@@ -300,16 +316,16 @@ export function AppHeader({ user, projects, inboxCount }: { user: { name: string
                 return (
                   <motion.div key={item.href} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.04 + i * 0.03 }}>
                     <Link href={item.href} aria-current={active ? "page" : undefined} className={cn("flex h-11 items-center gap-3 rounded-md px-3 text-body [&_svg]:size-4", active ? "bg-surface-2 text-fg-strong" : "text-fg-muted")}>
-                      <span className={active ? "text-accent" : "text-fg-subtle"}>{NAV_ICONS[item.href]}</span>
+                      <span className={active ? "text-accent-fg" : "text-fg-subtle"}>{NAV_ICONS[item.href]}</span>
                       {item.label}
-                      {item.href === "/inbox" && inboxCount > 0 && <span className="font-numeric ml-auto text-caption text-accent">{inboxCount}</span>}
+                      {item.href === "/inbox" && inboxCount > 0 && <span className="font-numeric ml-auto text-caption text-accent-fg">{inboxCount}</span>}
                     </Link>
                   </motion.div>
                 );
               })}
               <div className="mt-auto border-t border-line pt-4">
                 <button type="button" onClick={() => { setMenuOpen(false); setCaptureOpen(true); }} className="flex h-11 w-full items-center gap-3 rounded-md px-3 text-body text-fg-muted">
-                  <Lightbulb className="size-4 text-accent" /> Capturar ideia
+                  <Lightbulb className="size-4 text-accent-fg" /> Capturar ideia
                 </button>
               </div>
             </motion.nav>

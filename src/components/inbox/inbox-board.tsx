@@ -104,7 +104,7 @@ export function InboxBoard({ ideas, projects }: { ideas: IdeaRow[]; projects: { 
         }}
         className="group flex items-center gap-4 border-b border-line-2 pb-4 transition-colors focus-within:border-accent/50"
       >
-        <Lightbulb className="size-5 shrink-0 text-accent" aria-hidden />
+        <Lightbulb className="size-5 shrink-0 text-accent-fg" aria-hidden />
         <input
           ref={inputRef}
           value={text}
@@ -198,7 +198,7 @@ export function InboxBoard({ ideas, projects }: { ideas: IdeaRow[]; projects: { 
                 <li key={idea.id} className="flex items-baseline justify-between gap-4 border-t border-line py-3 first:border-t-0">
                   <span className="min-w-0 truncate text-body-sm text-fg-muted line-through decoration-fg-subtle/40">{idea.text}</span>
                   {href ? (
-                    <Link href={href} className="shrink-0 text-caption tracking-normal text-accent hover:underline">
+                    <Link href={href} className="shrink-0 text-caption tracking-normal text-accent-fg hover:underline">
                       {CONVERTED_LABEL[idea.convertedKind ?? ""] ?? "Convertida"} →
                     </Link>
                   ) : (

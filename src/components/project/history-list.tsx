@@ -33,7 +33,7 @@ export function HistoryList({ items, actions, compact = false }: { items: Histor
                   {item.count && item.count > 1 && <span className="font-numeric rounded-xs bg-surface-2 px-1 text-fg-muted">{item.count}</span>}
                 </p>
                 {item.url ? (
-                  <a href={item.url} target="_blank" rel="noreferrer noopener" className="group/link flex w-fit max-w-full items-start gap-1 text-body-sm font-medium text-fg-strong hover:text-accent">
+                  <a href={item.url} target="_blank" rel="noreferrer noopener" className="group/link flex w-fit max-w-full items-start gap-1 text-body-sm font-medium text-fg-strong hover:text-accent-fg">
                     <span className="break-words">{item.title}</span>
                     <ArrowUpRight className="mt-0.5 size-3.5 shrink-0 text-fg-subtle opacity-0 transition-opacity group-hover/link:opacity-100" aria-hidden />
                   </a>

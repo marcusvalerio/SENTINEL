@@ -12,7 +12,7 @@ function Spark({ days }: { days: { count: number }[] }) {
   return (
     <div className="flex h-7 items-end gap-[2px]" aria-hidden>
       {days.map((d, i) => (
-        <span key={i} className={d.count ? "w-1 rounded-[1px] bg-[#7fb0e8]/80" : "w-1 rounded-[1px] bg-surface-3"} style={{ height: d.count ? Math.max(4, (d.count / max) * 28) : 2 }} />
+        <span key={i} className={d.count ? "w-1 rounded-[1px] bg-status-development/80" : "w-1 rounded-[1px] bg-surface-3"} style={{ height: d.count ? Math.max(4, (d.count / max) * 28) : 2 }} />
       ))}
     </div>
   );

@@ -25,13 +25,13 @@ export function TagInput({ value, onChange, suggestions = [], label = "Tags" }: 
       <div
         className={cn(
           "flex min-h-10 flex-wrap items-center gap-1.5 rounded-md bg-sunken/70 px-2 py-1.5 shadow-[inset_0_0_0_1px_var(--color-line-2)] transition-shadow",
-          focused && "shadow-[inset_0_0_0_1px_rgb(215_196_133/0.6),0_0_0_3px_rgb(215_196_133/0.1)]",
+          focused && "shadow-[inset_0_0_0_1px_rgb(111_145_255/0.6),0_0_0_3px_rgb(111_145_255/0.1)]",
         )}
       >
         <Hash className="ml-1 size-3.5 shrink-0 text-fg-subtle" aria-hidden />
         <AnimatePresence initial={false}>
           {value.map((tag) => (
-            <motion.span key={tag} layout initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} className="flex h-6 items-center gap-1 rounded-xs bg-identity pr-0.5 pl-2 text-caption tracking-normal text-[#b8c5ea]">
+            <motion.span key={tag} layout initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} className="flex h-6 items-center gap-1 rounded-xs bg-identity pr-0.5 pl-2 text-caption tracking-normal text-identity-fg">
               #{tag}
               <button type="button" onClick={() => onChange(value.filter((t) => t !== tag))} aria-label={`Remover tag ${tag}`} className="flex size-5 items-center justify-center rounded-xs text-fg-subtle hover:text-fg-strong">
                 <X className="size-3" />

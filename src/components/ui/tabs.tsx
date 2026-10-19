@@ -51,7 +51,7 @@ export function TabNav({ items, id, label, variant = "underline", className }: {
               )}
               <span className="relative">{item.label}</span>
               {item.count !== undefined && (
-                <span className={cn("font-numeric relative text-caption tracking-normal", item.active ? "text-accent" : "text-fg-subtle")}>{item.count}</span>
+                <span className={cn("font-numeric relative text-caption tracking-normal", item.active ? "text-accent-fg" : "text-fg-subtle")}>{item.count}</span>
               )}
             </Link>
           ))}
@@ -75,7 +75,7 @@ export function TabNav({ items, id, label, variant = "underline", className }: {
             )}
           >
             <span className="absolute inset-x-0 inset-y-1.5 rounded-sm transition-colors group-hover:bg-surface-2/70" aria-hidden />
-            {item.icon && <span className={cn("relative", item.active ? "text-accent" : "text-fg-subtle")}>{item.icon}</span>}
+            {item.icon && <span className={cn("relative", item.active ? "text-accent-fg" : "text-fg-subtle")}>{item.icon}</span>}
             <span className="relative">{item.label}</span>
             {item.count !== undefined && item.count > 0 && <span className="font-numeric relative text-caption tracking-normal text-fg-subtle">{item.count}</span>}
             {item.active && (

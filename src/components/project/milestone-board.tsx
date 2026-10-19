@@ -36,7 +36,7 @@ export type FeatureOption = { id: string; name: string; status: FeatureStatus; m
 
 export const MILESTONE_TONE: Record<MilestoneStatus, string> = {
   planned: "bg-fg-subtle",
-  active: "bg-[#7fb0e8]",
+  active: "bg-status-development",
   completed: "bg-success",
   paused: "bg-warning",
   cancelled: "bg-transparent shadow-[inset_0_0_0_1.5px_var(--color-fg-subtle)]",
@@ -143,7 +143,7 @@ export function MilestoneBoard({ projectId, milestones, features }: { projectId:
                     transition={{ duration: 0.28, ease: [0.25, 1, 0.5, 1] }}
                     className="scroll-mt-24"
                   >
-                    <article className={cn("rounded-lg bg-surface/70 shadow-[inset_0_0_0_1px_var(--color-line)] transition-shadow target:shadow-[inset_0_0_0_1px_rgb(215_196_133/0.5)]", m.status === "active" && "shadow-[inset_0_0_0_1px_rgb(127_176_232/0.35)]", m.status === "cancelled" && "opacity-60")}>
+                    <article className={cn("rounded-lg bg-surface/70 shadow-[inset_0_0_0_1px_var(--color-line)] transition-shadow target:shadow-[inset_0_0_0_1px_rgb(111_145_255/0.5)]", m.status === "active" && "shadow-[inset_0_0_0_1px_rgb(127_176_232/0.35)]", m.status === "cancelled" && "opacity-60")}>
                       <div className="flex items-start gap-4 p-4 sm:p-5">
                         <span className="font-mono mt-1 w-6 shrink-0 text-[0.6875rem] text-fg-subtle">{String(index + 1).padStart(2, "0")}</span>
                         <div className="flex min-w-0 flex-1 flex-col gap-3">
@@ -197,7 +197,7 @@ export function MilestoneBoard({ projectId, milestones, features }: { projectId:
                               <motion.ul initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="flex flex-col gap-1.5 overflow-hidden">
                                 {linked.map((f) => (
                                   <li key={f.id} className="flex items-center gap-2 text-body-sm">
-                                    <span className={cn("size-1.5 rounded-full", f.status === "done" ? "bg-accent" : f.status === "in_progress" ? "bg-[#93a6d8]" : "bg-fg-subtle")} aria-hidden />
+                                    <span className={cn("size-1.5 rounded-full", f.status === "done" ? "bg-accent" : f.status === "in_progress" ? "bg-status-planning" : "bg-fg-subtle")} aria-hidden />
                                     <span className={f.status === "done" ? "text-fg-muted line-through decoration-fg-subtle/60" : "text-fg"}>{f.name}</span>
                                     <span className="ml-auto text-caption tracking-normal text-fg-subtle">{FEATURE_STATUS_LABELS[f.status]}</span>
                                   </li>

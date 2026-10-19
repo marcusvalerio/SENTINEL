@@ -100,7 +100,7 @@ export function PreProjectQuestionnaire({ id, initial, onSaved }: { id: string |
         {PRE_PROJECT_CHAPTERS.map((chapter, i) => (
           <section key={chapter.key} id={`chapter-${chapter.key}`} className="flex scroll-mt-24 flex-col gap-7" aria-labelledby={`title-${chapter.key}`}>
             <header className="flex flex-col gap-2">
-              <span className="mono-label text-accent/80">{String(i + 1).padStart(2, "0")}</span>
+              <span className="mono-label text-accent-fg/80">{String(i + 1).padStart(2, "0")}</span>
               <h2 id={`title-${chapter.key}`} className="text-h2">
                 {chapter.title}
               </h2>

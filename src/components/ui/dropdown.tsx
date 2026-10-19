@@ -136,7 +136,7 @@ export function Dropdown({ trigger, items, align = "end", width = 220 }: Dropdow
                   {item.icon && <span className={cn(item.tone === "danger" ? "text-danger" : "text-fg-subtle")}>{item.icon}</span>}
                   <span className="flex-1 truncate">{item.label}</span>
                   {item.hint}
-                  {item.selected && <Check className="text-accent" />}
+                  {item.selected && <Check className="text-accent-fg" />}
                 </button>
               );
             })}

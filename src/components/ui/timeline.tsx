@@ -26,7 +26,7 @@ export function TimelineItem({
       <span
         className={cn(
           "relative z-10 mt-0.5 flex size-[23px] shrink-0 items-center justify-center rounded-full [&_svg]:size-3",
-          tone === "accent" && "bg-identity text-accent shadow-[inset_0_0_0_1px_rgb(215_196_133/0.35)]",
+          tone === "accent" && "bg-identity text-accent-fg shadow-[inset_0_0_0_1px_rgb(111_145_255/0.35)]",
           tone === "default" && "bg-surface-2 text-fg-muted shadow-[inset_0_0_0_1px_var(--color-line-2)]",
           tone === "muted" && "bg-canvas text-fg-subtle shadow-[inset_0_0_0_1px_var(--color-line-2)]",
         )}
