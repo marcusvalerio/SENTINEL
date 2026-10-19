@@ -859,7 +859,7 @@ html[data-theme="light"] .crt-stage {
   .sentinel-workspace { padding-top:.75rem; }
   .workspace-date { max-width:45%; justify-content:flex-end; text-align:right; font-size:.61rem; }
   .workspace-intro { grid-template-columns:1fr; padding:2.5rem 0 1.5rem; }
-  .workspace-intro h1 { font-size:clamp(3.15rem,14vw,4.6rem); }
+  .workspace-intro h1 { font-size:clamp(2.4rem,10.8vw,2.75rem); line-height:.98; }
   .workspace-intro-art { min-height:165px; }
   .workspace-art-logo { height:130px; }
   .workspace-actions { gap:.45rem; padding-bottom:1.3rem; }
