@@ -23,8 +23,8 @@ export function MilestonePanel({ projectId, milestones }: { projectId: string; m
       {focus ? (
         <Link href={`${base}#milestone-${focus.id}`} className="group flex flex-1 flex-col gap-3">
           <span className="flex flex-col gap-1">
-            <span className={cn("text-caption tracking-normal", focus.status === "active" ? "text-[#9fc4ee]" : "text-fg-subtle")}>{focus.status === "active" ? "Em andamento" : "Próximo"}</span>
-            <span className="line-clamp-2 font-display text-h4 font-medium text-fg-strong group-hover:text-accent">{focus.name}</span>
+            <span className={cn("text-caption tracking-normal", focus.status === "active" ? "text-status-development" : "text-fg-subtle")}>{focus.status === "active" ? "Em andamento" : "Próximo"}</span>
+            <span className="line-clamp-2 font-display text-h4 font-medium text-fg-strong group-hover:text-accent-fg">{focus.name}</span>
           </span>
           <span className="mt-auto flex flex-col gap-2">
             <span className="flex h-1 overflow-hidden rounded-full bg-surface-3/70" aria-hidden>

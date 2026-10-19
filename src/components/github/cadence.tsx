@@ -14,7 +14,7 @@ export function CommitCadence({ days, label = "Commits nos últimos 30 dias" }: 
           <motion.span
             key={d.day}
             title={`${formatDate(d.day)} · ${d.count} ${d.count === 1 ? "commit" : "commits"}`}
-            className={d.count ? "flex-1 rounded-[2px] bg-[#7fb0e8]/80" : "flex-1 rounded-[2px] bg-surface-3/70"}
+            className={d.count ? "flex-1 rounded-[2px] bg-status-development/80" : "flex-1 rounded-[2px] bg-surface-3/70"}
             initial={{ height: 2 }}
             animate={{ height: d.count ? Math.max(4, (d.count / max) * 48) : 2 }}
             transition={{ duration: 0.5, delay: i * 0.012, ease: [0.16, 1, 0.3, 1] }}

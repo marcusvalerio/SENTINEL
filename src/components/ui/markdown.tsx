@@ -23,7 +23,7 @@ function renderInline(nodes: Inline[], onTag?: (tag: string) => ReactNode): Reac
         );
       case "link":
         return (
-          <a key={i} href={n.href} target="_blank" rel="noreferrer noopener" className="text-accent underline decoration-accent/30 underline-offset-2 transition-colors hover:decoration-accent">
+          <a key={i} href={n.href} target="_blank" rel="noreferrer noopener" className="text-accent-fg underline decoration-accent/30 underline-offset-2 transition-colors hover:decoration-accent">
             {renderInline(n.c, onTag)}
           </a>
         );

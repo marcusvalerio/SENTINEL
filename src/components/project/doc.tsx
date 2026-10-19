@@ -14,7 +14,7 @@ export function DocSection({ title, children, editHref, description, className }
           {description && <p className="text-body-sm text-fg-subtle">{description}</p>}
         </div>
         {editHref && (
-          <Link href={editHref as Route} className="flex h-7 items-center gap-1.5 rounded-xs px-1.5 text-caption tracking-normal text-fg-muted transition-colors hover:bg-surface-2 hover:text-accent md:-ml-1.5">
+          <Link href={editHref as Route} className="flex h-7 items-center gap-1.5 rounded-xs px-1.5 text-caption tracking-normal text-fg-muted transition-colors hover:bg-surface-2 hover:text-accent-fg md:-ml-1.5">
             <PencilLine className="size-3.5" aria-hidden />
             Editar
           </Link>

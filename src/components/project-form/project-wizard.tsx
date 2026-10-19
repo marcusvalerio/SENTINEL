@@ -548,11 +548,11 @@ function CreatedOverlay({ name }: { name: string }) {
       <svg viewBox="0 0 96 96" className="size-24" fill="none" aria-hidden>
         <motion.circle cx="48" cy="48" r="44" stroke="rgb(212 207 214 / 0.2)" strokeWidth="1.5" initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }} />
         <motion.circle cx="48" cy="48" r="22" stroke="var(--color-fg-strong)" strokeWidth="1.5" initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 0.6, delay: 0.15, ease: [0.16, 1, 0.3, 1] }} />
-        <motion.path d="M48 4A44 44 0 0 1 92 48" stroke="var(--color-gold)" strokeWidth="1.5" strokeLinecap="round" initial={{ pathLength: 0, opacity: 0 }} animate={{ pathLength: 1, opacity: 1 }} transition={{ duration: 0.5, delay: 0.35 }} />
-        <motion.circle cx="48" cy="48" r="6" fill="var(--color-wine)" initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring", stiffness: 400, damping: 18, delay: 0.45 }} />
+        <motion.path d="M48 4A44 44 0 0 1 92 48" stroke="var(--color-accent-fg)" strokeWidth="1.5" strokeLinecap="round" initial={{ pathLength: 0, opacity: 0 }} animate={{ pathLength: 1, opacity: 1 }} transition={{ duration: 0.5, delay: 0.35 }} />
+        <motion.circle cx="48" cy="48" r="6" fill="var(--color-accent)" initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring", stiffness: 400, damping: 18, delay: 0.45 }} />
       </svg>
       <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3, duration: 0.3 }} className="flex flex-col items-center gap-1.5 px-6 text-center">
-        <span className="eyebrow text-accent">Projeto registrado</span>
+        <span className="eyebrow text-accent-fg">Projeto registrado</span>
         <p className="font-display text-h2 text-fg-strong">{name}</p>
       </motion.div>
     </motion.div>

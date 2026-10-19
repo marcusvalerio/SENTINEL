@@ -75,7 +75,7 @@ export function ScopeStep({ values, set, errors, counter }: StepProps & { counte
             onClick={() => add()}
             className="group flex flex-col items-center gap-3 rounded-lg px-6 py-10 text-center shadow-[inset_0_0_0_1px_var(--color-line-2)] transition-colors [background-image:repeating-linear-gradient(135deg,transparent_0_10px,rgb(212_207_214/0.015)_10px_11px)] hover:bg-surface/60"
           >
-            <span className="flex size-10 items-center justify-center rounded-md bg-surface-2 text-fg-muted shadow-[inset_0_0_0_1px_var(--color-line-2)] transition-colors group-hover:text-accent">
+            <span className="flex size-10 items-center justify-center rounded-md bg-surface-2 text-fg-muted shadow-[inset_0_0_0_1px_var(--color-line-2)] transition-colors group-hover:text-accent-fg">
               <ListPlus className="size-5 stroke-[1.5]" aria-hidden />
             </span>
             <span className="text-body-sm font-medium text-fg-strong">Adicionar a primeira funcionalidade</span>

@@ -67,7 +67,7 @@ export function QuickCapture({ open, onClose, project }: { open: boolean; onClos
             className="relative w-full max-w-xl overflow-hidden rounded-xl bg-surface shadow-overlay outline-none"
           >
             <div className="flex items-center gap-3 px-4">
-              <Lightbulb className="size-4 shrink-0 text-accent" aria-hidden />
+              <Lightbulb className="size-4 shrink-0 text-accent-fg" aria-hidden />
               <input
                 value={text}
                 onChange={(e) => setText(e.target.value)}

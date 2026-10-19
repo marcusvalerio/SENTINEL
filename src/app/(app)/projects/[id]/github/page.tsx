@@ -109,7 +109,7 @@ export default async function GithubPage({ params }: { params: Promise<{ id: str
                     {g.branches.map((b) => (
                       <li key={b.name} className="flex min-w-0 items-center gap-2 text-body-sm">
                         <span className="min-w-0 truncate font-mono text-[0.75rem] text-fg" title={b.name}>{b.name}</span>
-                        {b.name === g.githubDefaultBranch && <span className="text-caption tracking-normal text-accent">padrão</span>}
+                        {b.name === g.githubDefaultBranch && <span className="text-caption tracking-normal text-accent-fg">padrão</span>}
                         {b.protected && <Shield className="size-3 shrink-0 text-fg-subtle" aria-label="Protegida" />}
                         <span className="ml-auto font-mono text-[0.6875rem] text-fg-subtle">{b.sha}</span>
                       </li>
@@ -135,7 +135,7 @@ export default async function GithubPage({ params }: { params: Promise<{ id: str
                         ) : (
                           <span className="size-[22px] rounded-full bg-surface-3" aria-hidden />
                         )}
-                        <a href={c.url ?? undefined} target="_blank" rel="noreferrer noopener" className="truncate text-fg hover:text-accent">
+                        <a href={c.url ?? undefined} target="_blank" rel="noreferrer noopener" className="truncate text-fg hover:text-accent-fg">
                           {c.login}
                         </a>
                         <span className="font-numeric ml-auto text-caption text-fg-subtle">{c.contributions}</span>

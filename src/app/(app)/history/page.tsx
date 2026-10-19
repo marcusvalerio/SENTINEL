@@ -61,7 +61,7 @@ export default async function HistoryPage() {
               Projetos
             </span>
             <span className="flex items-center gap-1.5">
-              <span className="size-2 rounded-xs bg-[#93a6d8]" aria-hidden />
+              <span className="size-2 rounded-xs bg-status-planning" aria-hidden />
               Entregas
             </span>
             <span className="flex items-center gap-1.5">
@@ -81,7 +81,7 @@ export default async function HistoryPage() {
                   ) : (
                     <>
                       <span className="bg-accent" style={{ flexGrow: m.projects }} />
-                      <span className="bg-[#93a6d8]" style={{ flexGrow: m.features }} />
+                      <span className="bg-status-planning" style={{ flexGrow: m.features }} />
                       <span className="bg-fg-subtle/60" style={{ flexGrow: m.notes }} />
                     </>
                   )}
@@ -169,7 +169,7 @@ export default async function HistoryPage() {
         </section>
       ) : (
         <p className="text-body text-fg-muted">
-          Nenhum projeto ainda. <Link href="/projects/start" className="text-fg-strong underline decoration-line-strong underline-offset-4 hover:text-accent">Comece o primeiro</Link>.
+          Nenhum projeto ainda. <Link href="/projects/start" className="text-fg-strong underline decoration-line-strong underline-offset-4 hover:text-accent-fg">Comece o primeiro</Link>.
         </p>
       )}
     </div>

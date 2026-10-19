@@ -118,7 +118,7 @@ export function ChoiceGroup<T extends string>({
               "group relative flex cursor-pointer items-center gap-2.5 rounded-md text-left transition-[background-color,box-shadow,color] duration-150",
               size === "sm" ? "min-h-10 px-3 py-2" : "min-h-11 px-3 py-2.5",
               selected
-                ? "bg-identity text-fg-strong shadow-[inset_0_0_0_1px_rgb(215_196_133/0.45)]"
+                ? "bg-identity text-fg-strong shadow-[inset_0_0_0_1px_rgb(111_145_255/0.45)]"
                 : "bg-sunken/60 text-fg-muted shadow-[inset_0_0_0_1px_var(--color-line)] hover:bg-surface-2 hover:text-fg-strong hover:shadow-[inset_0_0_0_1px_var(--color-line-2)]",
               "has-[:focus-visible]:shadow-focus",
             )}
@@ -133,7 +133,7 @@ export function ChoiceGroup<T extends string>({
               className="sr-only"
             />
             {option.icon && (
-              <span className={cn("shrink-0 transition-colors [&_svg]:size-4", selected ? "text-accent" : "text-fg-subtle group-hover:text-fg-muted")}>
+              <span className={cn("shrink-0 transition-colors [&_svg]:size-4", selected ? "text-accent-fg" : "text-fg-subtle group-hover:text-fg-muted")}>
                 {option.icon}
               </span>
             )}

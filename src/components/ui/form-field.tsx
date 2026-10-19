@@ -60,7 +60,7 @@ export function FormField({
           >
             {label}
             {required && (
-              <span className="ml-1 text-accent" aria-hidden>
+              <span className="ml-1 text-accent-fg" aria-hidden>
                 *
               </span>
             )}

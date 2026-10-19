@@ -72,11 +72,11 @@ export function NoteForm({ projectId, initial, defaultType = "note", autoFocus, 
               key={type}
               className={cn(
                 "flex h-7 shrink-0 cursor-pointer items-center gap-1.5 rounded-xs px-2 text-caption font-medium tracking-normal transition-colors has-[:focus-visible]:shadow-focus [&_svg]:size-3",
-                selected ? "bg-identity text-fg-strong shadow-[inset_0_0_0_1px_rgb(215_196_133/0.4)]" : "text-fg-muted shadow-[inset_0_0_0_1px_var(--color-line)] hover:bg-surface-2 hover:text-fg",
+                selected ? "bg-identity text-fg-strong shadow-[inset_0_0_0_1px_rgb(111_145_255/0.4)]" : "text-fg-muted shadow-[inset_0_0_0_1px_var(--color-line)] hover:bg-surface-2 hover:text-fg",
               )}
             >
               <input type="radio" name="note-type" value={type} checked={selected} onChange={() => setValues((v) => ({ ...v, type }))} className="sr-only" />
-              <span className={selected ? "text-accent" : "text-fg-subtle"}>{NOTE_ICONS[type]}</span>
+              <span className={selected ? "text-accent-fg" : "text-fg-subtle"}>{NOTE_ICONS[type]}</span>
               {NOTE_TYPE_LABELS[type]}
             </label>
           );

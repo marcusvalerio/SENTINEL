@@ -23,7 +23,7 @@ function StatusGlyph({ status }: { status: FeatureStatus }) {
         <Check className="size-3 stroke-[3]" />
       </motion.span>
     );
-  if (status === "in_progress") return <CircleDashed className="size-5 animate-[spin_6s_linear_infinite] text-[#93a6d8]" />;
+  if (status === "in_progress") return <CircleDashed className="size-5 animate-[spin_6s_linear_infinite] text-status-planning" />;
   return <Circle className="size-5 text-fg-subtle" />;
 }
 

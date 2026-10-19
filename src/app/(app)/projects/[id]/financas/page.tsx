@@ -213,7 +213,7 @@ export default async function FinancePage({
         </dl>
         {f?.aiBaseMonths ? (
           <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-body-sm text-fg-muted">
-            <Sparkles className="size-3.5 text-accent" aria-hidden />
+            <Sparkles className="size-3.5 text-accent-fg" aria-hidden />
             {ai && ai.services.length > 0
               ? `Custo inclui ${f.aiBaseMonths} ${f.aiBaseMonths === 1 ? "mês" : "meses"} da base de IA (${ai.services.join(" + ")}): ${formatMoney(ai.totalCents, currency)}.`
               : `Base de IA aplicada (${f.aiBaseMonths} ${f.aiBaseMonths === 1 ? "mês" : "meses"}), mas nenhuma assinatura da base tem valor informado.`}
@@ -229,7 +229,7 @@ export default async function FinancePage({
             )}
             <Link
               href="/subscriptions"
-              className="text-fg transition-colors hover:text-accent"
+              className="text-fg transition-colors hover:text-accent-fg"
             >
               Assinaturas
             </Link>
@@ -245,7 +245,7 @@ export default async function FinancePage({
             </h2>
             <Link
               href="/subscriptions"
-              className="text-caption tracking-normal text-fg-muted transition-colors hover:text-accent"
+              className="text-caption tracking-normal text-fg-muted transition-colors hover:text-accent-fg"
             >
               Gerenciar
             </Link>

@@ -171,7 +171,7 @@ export function NotesJournal({ projectId, notes }: { projectId: string; notes: J
                 type="button"
                 aria-pressed={filter.tag === tag}
                 onClick={() => setFilter((f) => ({ ...f, tag: f.tag === tag ? null : tag }))}
-                className={cn("flex h-6 items-center gap-1 rounded-xs px-1.5 text-caption tracking-normal transition-colors", filter.tag === tag ? "bg-identity text-[#b8c5ea]" : "text-fg-subtle hover:bg-surface-2 hover:text-fg")}
+                className={cn("flex h-6 items-center gap-1 rounded-xs px-1.5 text-caption tracking-normal transition-colors", filter.tag === tag ? "bg-identity text-identity-fg" : "text-fg-subtle hover:bg-surface-2 hover:text-fg")}
               >
                 #{tag}
                 <span className="font-numeric opacity-60">{count}</span>
@@ -214,7 +214,7 @@ export function NotesJournal({ projectId, notes }: { projectId: string; notes: J
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, height: 0, marginTop: 0, transition: { duration: 0.2 } }}
                       transition={{ duration: 0.26, ease: [0.25, 1, 0.5, 1] }}
-                      className="scroll-mt-24 target:[&>article]:shadow-[inset_0_0_0_1px_rgb(215_196_133/0.5)]"
+                      className="scroll-mt-24 target:[&>article]:shadow-[inset_0_0_0_1px_rgb(111_145_255/0.5)]"
                     >
                       <article className="rounded-lg bg-surface/70 p-4 shadow-[inset_0_0_0_1px_var(--color-line)] transition-shadow sm:p-5">
                         {editing === note.id ? (

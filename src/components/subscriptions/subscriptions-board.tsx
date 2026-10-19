@@ -101,7 +101,7 @@ export function SubscriptionsBoard({ items, projects }: { items: SubscriptionVie
       <motion.li key={s.id} layout="position" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="group flex items-start gap-4 border-t border-line py-4 first:border-t-0">
         <div className="flex min-w-0 flex-1 flex-col gap-1">
           <div className="flex flex-wrap items-center gap-2">
-            <button type="button" onClick={() => setEditing({ id: s.id, values: toInput(s) })} className={cn("text-left text-body font-medium transition-colors hover:text-accent", s.status === "active" ? "text-fg-strong" : "text-fg-muted")}>
+            <button type="button" onClick={() => setEditing({ id: s.id, values: toInput(s) })} className={cn("text-left text-body font-medium transition-colors hover:text-accent-fg", s.status === "active" ? "text-fg-strong" : "text-fg-muted")}>
               {s.service}
             </button>
             {s.plan && <span className="text-body-sm text-fg-muted">{s.plan}</span>}

@@ -50,8 +50,8 @@ export function Stepper({ steps, current, reachable, complete, onSelect, hasErro
               <span
                 className={cn(
                   "relative z-10 flex size-[23px] shrink-0 items-center justify-center rounded-full font-mono text-[10px] transition-all duration-200",
-                  isCurrent && "bg-accent text-fg-on-accent shadow-[0_0_0_4px_rgb(215_196_133/0.12)]",
-                  isDone && !error && "bg-identity text-accent shadow-[inset_0_0_0_1px_rgb(215_196_133/0.35)]",
+                  isCurrent && "bg-accent text-fg-on-accent shadow-[0_0_0_4px_rgb(111_145_255/0.12)]",
+                  isDone && !error && "bg-identity text-accent-fg shadow-[inset_0_0_0_1px_rgb(111_145_255/0.35)]",
                   error && !isCurrent && "bg-danger-soft text-danger shadow-[inset_0_0_0_1px_rgb(224_146_143/0.4)]",
                   !isCurrent && !isDone && !error && "bg-canvas text-fg-subtle shadow-[inset_0_0_0_1px_var(--color-line-3)]",
                   canGo && !isCurrent && "group-hover:shadow-[inset_0_0_0_1px_var(--color-accent)]",

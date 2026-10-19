@@ -45,7 +45,7 @@ export default async function MemoryPage() {
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
           {notes.map((note) => (
             <Link key={note.id} href={`/projects/${note.projectId}`} className="group flex min-h-52 flex-col rounded-2xl border border-line bg-surface p-5 shadow-raised transition duration-200 hover:-translate-y-0.5 hover:border-accent/30 hover:bg-surface-2">
-              <div className="flex items-start justify-between gap-3"><span className="flex size-9 items-center justify-center rounded-xl bg-accent-soft text-accent"><FileText className="size-4" /></span><ArrowUpRight className="size-4 text-fg-subtle transition group-hover:text-accent" /></div>
+              <div className="flex items-start justify-between gap-3"><span className="flex size-9 items-center justify-center rounded-xl bg-accent-soft text-accent-fg"><FileText className="size-4" /></span><ArrowUpRight className="size-4 text-fg-subtle transition group-hover:text-accent-fg" /></div>
               <p className="mt-4 text-xs text-fg-muted">{note.projectName} <span className="mx-1.5 text-fg-subtle">·</span> {note.type}</p>
               <h2 className="mt-1 font-medium leading-6 text-fg-strong">{note.title}</h2>
               <p className="mt-2 line-clamp-3 flex-1 text-sm leading-6 text-fg-muted">{note.content || "Registro sem conteúdo adicional."}</p>

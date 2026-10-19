@@ -55,7 +55,7 @@ function Section({ step, children, onEdit, errorCount }: { step: number; childre
         <button
           type="button"
           onClick={() => onEdit(step)}
-          className="flex h-7 items-center gap-1.5 rounded-xs px-1.5 text-caption tracking-normal text-fg-muted transition-colors hover:bg-surface-2 hover:text-accent sm:-ml-1.5"
+          className="flex h-7 items-center gap-1.5 rounded-xs px-1.5 text-caption tracking-normal text-fg-muted transition-colors hover:bg-surface-2 hover:text-accent-fg sm:-ml-1.5"
         >
           <PencilLine className="size-3.5" aria-hidden />
           Editar
@@ -97,7 +97,7 @@ export function ReviewStep({ values: v, errors, counter, onEdit, mode }: ReviewP
         <div className="bg-grid pointer-events-none absolute inset-0 [mask-image:linear-gradient(to_left,black,transparent_70%)]" aria-hidden />
         <div className="relative flex flex-col gap-3">
           <div className="flex flex-wrap items-center gap-2">
-            {v.type && <span className="eyebrow text-[#b8c5ea]">{PROJECT_TYPE_LABELS[v.type]}</span>}
+            {v.type && <span className="eyebrow text-identity-fg">{PROJECT_TYPE_LABELS[v.type]}</span>}
             {v.codename && <Code className="bg-canvas/40">{v.codename}</Code>}
           </div>
           <h2 className="font-display text-h2 font-medium tracking-[-0.02em] text-fg-strong sm:text-h1">{v.name.trim() || "Projeto sem nome"}</h2>

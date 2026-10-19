@@ -88,7 +88,7 @@ src/
 - **Autosave.** O wizard espelha cada mudança no `localStorage` e grava um rascunho no servidor (`project_drafts`) após 900 ms sem digitação. Rascunhos aparecem no dashboard em "Em registro" e podem ser retomados pelo link `?draft=`.
 - **Dinheiro em centavos** (`bigint`), com moeda por projeto (padrão BRL).
 - **Observações:** a etapa é obrigatória no fluxo, porque não pode ser pulada antes da revisão. O conteúdo é opcional. Os campos obrigatórios são só nome, tipo e objetivo principal.
-- **Tema escuro único**, construído sobre a paleta Aswad / Rurikon / Deep Cobalt / Jam Session, com Wine Yellow e Antique Gold usados com parcimônia.
+- **Tema escuro por padrão, com tema claro opcional** (alternado no cabeçalho; aplicado antes da primeira pintura, sem flash). Construído sobre a paleta Aswad / Rurikon / Deep Cobalt / Jam Session, com Wine Yellow e Antique Gold usados com parcimônia.
 
 ### Decisões da 2.0
 

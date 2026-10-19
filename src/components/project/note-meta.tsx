@@ -29,9 +29,9 @@ export const NOTE_ICONS: Record<NoteType, ReactNode> = {
 
 /** Only a few types carry colour — decisions and problems must stand out in a long journal. */
 const NOTE_TONES: Partial<Record<NoteType, string>> = {
-  decision: "text-accent bg-accent-soft shadow-[inset_0_0_0_1px_rgb(215_196_133/0.2)]",
+  decision: "text-accent-fg bg-accent-soft shadow-[inset_0_0_0_1px_rgb(111_145_255/0.2)]",
   problem: "text-danger bg-danger-soft shadow-[inset_0_0_0_1px_rgb(224_146_143/0.2)]",
-  idea: "text-[#c9bde9] bg-[rgb(174_163_212/0.1)] shadow-[inset_0_0_0_1px_rgb(174_163_212/0.2)]",
+  idea: "text-status-idea bg-[rgb(174_163_212/0.1)] shadow-[inset_0_0_0_1px_rgb(174_163_212/0.2)]",
   insight: "text-info bg-identity shadow-[inset_0_0_0_1px_rgb(147_166_216/0.2)]",
   discarded_idea: "text-fg-subtle bg-surface-2 shadow-[inset_0_0_0_1px_var(--color-line)] line-through decoration-fg-subtle/50",
 };

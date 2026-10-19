@@ -36,7 +36,7 @@ export function FocusEditor({ projectId, focus }: { projectId: string; focus: st
   return (
     <section aria-labelledby="focus" className="flex flex-col gap-3">
       <h2 id="focus" className="eyebrow flex items-center gap-2">
-        <Crosshair className="size-3 text-accent" aria-hidden />
+        <Crosshair className="size-3 text-accent-fg" aria-hidden />
         Foco atual
       </h2>
       <AnimatePresence mode="wait" initial={false}>
@@ -69,7 +69,7 @@ export function FocusEditor({ projectId, focus }: { projectId: string; focus: st
               }}
               aria-label="Foco atual do projeto"
               placeholder="Ex.: Fechar o fluxo de pagamento antes do beta."
-              className="w-full resize-none rounded-md bg-surface-2/70 px-3.5 py-3 font-display text-h4 leading-snug text-fg-strong shadow-[inset_0_0_0_1px_var(--color-line-strong)] outline-none placeholder:text-fg-subtle focus:shadow-[inset_0_0_0_1px_rgb(215_196_133/0.5)]"
+              className="w-full resize-none rounded-md bg-surface-2/70 px-3.5 py-3 font-display text-h4 leading-snug text-fg-strong shadow-[inset_0_0_0_1px_var(--color-line-strong)] outline-none placeholder:text-fg-subtle focus:shadow-[inset_0_0_0_1px_rgb(111_145_255/0.5)]"
             />
             <div className="flex items-center gap-2">
               <Button type="submit" size="sm" variant="primary" loading={pending}>

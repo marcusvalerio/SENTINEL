@@ -27,9 +27,9 @@ import { buildProjectContext, weekCounts } from "@/server/projects/brief";
 import { getHistory, getMilestones } from "@/server/projects/intelligence";
 import { getFeatures, getMembers, getNotes, getTools } from "@/server/projects/queries";
 
-const FEATURE_BAR: Record<string, string> = { done: "bg-accent", in_progress: "bg-[#93a6d8]", planned: "bg-surface-3" };
+const FEATURE_BAR: Record<string, string> = { done: "bg-accent", in_progress: "bg-status-planning", planned: "bg-surface-3" };
 const SOURCE_LABELS = { manual: "Criado manualmente", github_import: "Importado do GitHub", pre_project: "Pré-projeto" } as const;
-const FEATURE_DOT: Record<string, string> = { done: "bg-accent", in_progress: "bg-[#93a6d8]", planned: "bg-fg-subtle" };
+const FEATURE_DOT: Record<string, string> = { done: "bg-accent", in_progress: "bg-status-planning", planned: "bg-fg-subtle" };
 
 export default async function ProjectOverviewPage({ params }: { params: Promise<{ id: string }> }) {
   const { user, project } = await loadProject(params);
@@ -111,7 +111,7 @@ export default async function ProjectOverviewPage({ params }: { params: Promise<
               )}
             </div>
           )}
-          <Link href={`${base}/objetivos`} className="group inline-flex w-fit items-center gap-1.5 text-body-sm text-fg-muted transition-colors hover:text-accent">
+          <Link href={`${base}/objetivos`} className="group inline-flex w-fit items-center gap-1.5 text-body-sm text-fg-muted transition-colors hover:text-accent-fg">
             Contexto completo
             <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-0.5" aria-hidden />
           </Link>
@@ -200,14 +200,14 @@ export default async function ProjectOverviewPage({ params }: { params: Promise<
         <AsideBlock
           title="Próximo milestone"
           action={
-            <Link href={`${base}/roadmap`} className="text-caption tracking-normal text-fg-muted transition-colors hover:text-accent">
+            <Link href={`${base}/roadmap`} className="text-caption tracking-normal text-fg-muted transition-colors hover:text-accent-fg">
               Roadmap
             </Link>
           }
         >
           {nextMilestone ? (
             <Link href={`${base}/roadmap#milestone-${nextMilestone.id}`} className="group flex flex-col gap-0.5">
-              <span className="text-body-sm font-medium text-fg-strong transition-colors group-hover:text-accent">{nextMilestone.name}</span>
+              <span className="text-body-sm font-medium text-fg-strong transition-colors group-hover:text-accent-fg">{nextMilestone.name}</span>
               <span className="text-caption tracking-normal text-fg-subtle">{nextMilestone.dueOn ? `Previsto para ${formatDate(nextMilestone.dueOn)}` : "Sem data prevista"}</span>
             </Link>
           ) : (
@@ -218,7 +218,7 @@ export default async function ProjectOverviewPage({ params }: { params: Promise<
         <AsideBlock
           title="Stack"
           action={
-            <Link href={`${base}/tecnologia`} className="text-caption tracking-normal text-fg-muted transition-colors hover:text-accent">
+            <Link href={`${base}/tecnologia`} className="text-caption tracking-normal text-fg-muted transition-colors hover:text-accent-fg">
               Tecnologia
             </Link>
           }
@@ -230,7 +230,7 @@ export default async function ProjectOverviewPage({ params }: { params: Promise<
         <AsideBlock
           title="Escopo"
           action={
-            <Link href={`${base}/escopo`} className="text-caption tracking-normal text-fg-muted transition-colors hover:text-accent">
+            <Link href={`${base}/escopo`} className="text-caption tracking-normal text-fg-muted transition-colors hover:text-accent-fg">
               {features.length} {features.length === 1 ? "funcionalidade" : "funcionalidades"}
             </Link>
           }
@@ -262,7 +262,7 @@ export default async function ProjectOverviewPage({ params }: { params: Promise<
         <AsideBlock
           title="Ferramentas"
           action={
-            <Link href={`${base}/ferramentas`} className="text-caption tracking-normal text-fg-muted transition-colors hover:text-accent">
+            <Link href={`${base}/ferramentas`} className="text-caption tracking-normal text-fg-muted transition-colors hover:text-accent-fg">
               Gerenciar
             </Link>
           }
@@ -288,7 +288,7 @@ export default async function ProjectOverviewPage({ params }: { params: Promise<
             <ul className="flex flex-col gap-3">
               {members.map((m) => (
                 <li key={m.id} className="flex items-center gap-3">
-                  <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-identity font-display text-[11px] font-semibold text-accent shadow-[inset_0_0_0_1px_rgb(215_196_133/0.2)]" aria-hidden>
+                  <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-identity font-display text-[11px] font-semibold text-accent-fg shadow-[inset_0_0_0_1px_rgb(111_145_255/0.2)]" aria-hidden>
                     {m.name
                       .split(/\s+/)
                       .map((p) => p[0])

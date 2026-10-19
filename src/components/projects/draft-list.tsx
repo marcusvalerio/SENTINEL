@@ -63,7 +63,7 @@ export function DraftList({ drafts }: { drafts: Draft[] }) {
                     <span className="font-mono">{stepCounter(step, FORM_STEPS.length)}</span> · {FORM_STEPS[step]!.label} · {formatRelative(draft.updatedAt)}
                   </span>
                 </Link>
-                <ArrowRight className="size-4 shrink-0 text-fg-subtle transition-transform duration-200 group-hover:translate-x-0.5 group-hover:text-accent" aria-hidden />
+                <ArrowRight className="size-4 shrink-0 text-fg-subtle transition-transform duration-200 group-hover:translate-x-0.5 group-hover:text-accent-fg" aria-hidden />
                 <IconButton label="Descartar rascunho" size="sm" tone="danger" className="relative z-10" onClick={() => setPendingDelete(draft)} disabled={isPending}>
                   <Trash2 />
                 </IconButton>

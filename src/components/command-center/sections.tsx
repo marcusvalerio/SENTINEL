@@ -65,7 +65,7 @@ export function MilestoneAgenda({ items }: { items: { id: string; name: string; 
             <Link href={`/projects/${m.projectId}/roadmap#milestone-${m.id}`} className="group flex items-baseline gap-3">
               <span className={cn("font-numeric w-16 shrink-0 text-caption tracking-normal", overdue ? "text-danger" : "text-fg-subtle")}>{m.dueOn ? formatDate(m.dueOn).replace(/ de \d{4}$/, "") : "sem data"}</span>
               <span className="flex min-w-0 flex-col">
-                <span className="truncate text-body-sm text-fg-strong group-hover:text-accent">{m.name}</span>
+                <span className="truncate text-body-sm text-fg-strong group-hover:text-accent-fg">{m.name}</span>
                 <span className="truncate text-caption tracking-normal text-fg-subtle">
                   {m.projectName}
                   {m.status === "active" && " · em andamento"}

@@ -40,7 +40,7 @@ export function NotesStep({ values, set, errors, counter }: StepProps & { counte
       />
 
       <FormField label={<span className="sr-only">Observações</span>} error={errors.observations}>
-        <div className="overflow-hidden rounded-lg bg-sunken/70 shadow-[inset_0_0_0_1px_var(--color-line-2)] transition-shadow focus-within:shadow-[inset_0_0_0_1px_rgb(215_196_133/0.5),0_0_0_3px_rgb(215_196_133/0.08)]">
+        <div className="overflow-hidden rounded-lg bg-sunken/70 shadow-[inset_0_0_0_1px_var(--color-line-2)] transition-shadow focus-within:shadow-[inset_0_0_0_1px_rgb(111_145_255/0.5),0_0_0_3px_rgb(111_145_255/0.08)]">
           <div className="flex flex-wrap items-center gap-1.5 border-b border-line px-3 py-2.5 sm:px-4">
             <span className="eyebrow mr-1">Começar por</span>
             {PROMPTS.map((prompt) => (

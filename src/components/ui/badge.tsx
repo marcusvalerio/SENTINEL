@@ -5,9 +5,9 @@ type Tone = "neutral" | "accent" | "gold" | "identity" | "success" | "danger";
 
 const tones: Record<Tone, string> = {
   neutral: "bg-surface-2 text-fg-muted shadow-[inset_0_0_0_1px_var(--color-line)]",
-  accent: "bg-accent-soft text-accent shadow-[inset_0_0_0_1px_rgb(215_196_133/0.2)]",
-  gold: "bg-gold-soft text-gold shadow-[inset_0_0_0_1px_rgb(181_158_95/0.22)]",
-  identity: "bg-identity text-[#b8c5ea] shadow-[inset_0_0_0_1px_rgb(147_166_216/0.2)]",
+  accent: "bg-accent-soft text-accent-fg shadow-[inset_0_0_0_1px_rgb(111_145_255/0.2)]",
+  gold: "bg-warning-soft text-warning shadow-[inset_0_0_0_1px_rgb(215_177_107/0.28)]",
+  identity: "bg-identity text-identity-fg shadow-[inset_0_0_0_1px_rgb(147_166_216/0.2)]",
   success: "bg-[rgb(134_185_156/0.1)] text-success shadow-[inset_0_0_0_1px_rgb(134_185_156/0.22)]",
   danger: "bg-danger-soft text-danger shadow-[inset_0_0_0_1px_rgb(224_146_143/0.22)]",
 };
