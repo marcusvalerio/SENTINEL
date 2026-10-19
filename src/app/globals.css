@@ -267,6 +267,38 @@
 }
 
 
+/* Dark theme remains a first-class option while light becomes the default. */
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --color-sunken: #17181c;
+  --color-canvas: #202124;
+  --color-surface: #26272b;
+  --color-surface-2: #303136;
+  --color-surface-3: #393a3f;
+  --color-hover: rgb(1 23 255 / 0.07);
+  --color-identity: #202124;
+  --color-identity-2: #303136;
+  --color-line: rgb(245 244 240 / 0.08);
+  --color-line-2: rgb(245 244 240 / 0.12);
+  --color-line-3: rgb(245 244 240 / 0.2);
+  --color-fg-strong: #F5F4F0;
+  --color-fg: #D8D7D2;
+  --color-fg-muted: #AAA9A3;
+  --color-fg-subtle: #85847F;
+  --color-fg-on-accent: #F5F4F0;
+  --color-accent: #0117FF;
+  --color-accent-hover: #2338FF;
+  --color-accent-soft: rgb(1 23 255 / 0.12);
+  --color-gold-soft: rgb(1 23 255 / 0.12);
+  --color-cobalt-soft: rgb(1 23 255 / 0.12);
+  --shadow-raised: 0 1px 2px rgb(0 0 0 / 0.16), 0 1px 0 rgb(245 244 240 / 0.035) inset;
+  --shadow-overlay: 0 0 0 1px rgb(245 244 240 / 0.08), 0 16px 48px -12px rgb(0 0 0 / 0.48), 0 4px 12px -4px rgb(0 0 0 / 0.28);
+  --shadow-focus: 0 0 0 2px var(--color-canvas), 0 0 0 4px rgb(1 23 255 / 0.5);
+}
+html[data-theme="dark"] body {
+  background-image: radial-gradient(100% 48% at 50% 0%, rgb(1 23 255 / 0.055), transparent 72%);
+}
+
 /* Theme tokens: the light palette is intentionally warm off-white, never pure white. */
 html[data-theme="light"] {
   color-scheme: light;
