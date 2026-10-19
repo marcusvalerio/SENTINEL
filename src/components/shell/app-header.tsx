@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { AnimatePresence, motion } from "motion/react";
 import { usePathname, useRouter } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState, useTransition, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useState, useSyncExternalStore, useTransition, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import {
   Activity,
@@ -71,6 +71,30 @@ const NAV_ICONS: Record<string, ReactNode> = {
   "/memory": <Brain />,
 };
 
+const THEME_CHANGE_EVENT = "sentinel:theme-change";
+
+function subscribeTheme(onStoreChange: () => void) {
+  window.addEventListener("storage", onStoreChange);
+  window.addEventListener(THEME_CHANGE_EVENT, onStoreChange);
+  return () => {
+    window.removeEventListener("storage", onStoreChange);
+    window.removeEventListener(THEME_CHANGE_EVENT, onStoreChange);
+  };
+}
+
+function getThemeSnapshot(): "dark" | "light" {
+  try {
+    return window.localStorage.getItem("sentinel-theme") === "dark" ? "dark" : "light";
+  } catch {
+    return "light";
+  }
+}
+
+const getServerThemeSnapshot = () => "light" as const;
+const subscribeMounted = () => () => {};
+const getMountedSnapshot = () => true;
+const getServerMountedSnapshot = () => false;
+
 type ProjectIndexItem = { id: string; name: string; codename: string | null; status: ProjectStatus };
 
 export function AppHeader({ user, projects, inboxCount }: { user: { name: string; email: string }; projects: ProjectIndexItem[]; inboxCount: number }) {
@@ -79,23 +103,23 @@ export function AppHeader({ user, projects, inboxCount }: { user: { name: string
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [captureOpen, setCaptureOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [mounted, setMounted] = useState(false);
+  const mounted = useSyncExternalStore(subscribeMounted, getMountedSnapshot, getServerMountedSnapshot);
   const [query, setQuery] = useState("");
-  const [theme, setTheme] = useState<"dark" | "light">("light");
+  const theme = useSyncExternalStore(subscribeTheme, getThemeSnapshot, getServerThemeSnapshot);
 
   useEffect(() => {
-    setMounted(true);
-    const saved = window.localStorage.getItem("sentinel-theme");
-    const next = saved === "dark" ? "dark" : "light";
-    document.documentElement.dataset.theme = next;
-    setTheme(next);
-  }, []);
+    document.documentElement.dataset.theme = theme;
+  }, [theme]);
 
   const toggleTheme = useCallback(() => {
     const next = theme === "dark" ? "light" : "dark";
     document.documentElement.dataset.theme = next;
-    window.localStorage.setItem("sentinel-theme", next);
-    setTheme(next);
+    try {
+      window.localStorage.setItem("sentinel-theme", next);
+    } catch {
+      // Theme still changes for this session if storage is unavailable.
+    }
+    window.dispatchEvent(new Event(THEME_CHANGE_EVENT));
   }, [theme]);
   const { result, loading, search } = useGlobalSearch();
   const [signingOut, startSignOut] = useTransition();
